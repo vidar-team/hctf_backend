@@ -177,6 +177,11 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        /**
+         * Custom Providers
+         */
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // IDE Helper
+        App\Providers\APIReturnServiceProvider::class
     ],
 
     /*
@@ -226,6 +231,10 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+        /**
+         * Custom Facades
+         */
+        'APIReturn' => \App\Facades\APIReturnFacade::class
     ],
 
 ];
