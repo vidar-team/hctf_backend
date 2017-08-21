@@ -20,8 +20,8 @@ class CreateTeamTable extends Migration
             $table->string('password');
             $table->dateTimeTz('signUpTime');
             $table->dateTimeTz('lastLoginTime');
-            $table->decimal('score');
-            $table->boolean('banned');
+            $table->decimal('score')->default(0);
+            $table->boolean('banned')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
