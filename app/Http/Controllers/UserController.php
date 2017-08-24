@@ -13,7 +13,7 @@ class UserController extends Controller
         $this->userRepository = $userRepository;
     }
     public function index(Request $request){
-        return \APIReturn::success([
+        return APIReturn::success([
            "param" => $request->get('param')
         ]);
     }

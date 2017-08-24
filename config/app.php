@@ -186,7 +186,8 @@ return [
          * Custom Providers
          */
         Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class, // IDE Helper
-        App\Providers\APIReturnServiceProvider::class
+        App\Providers\APIReturnServiceProvider::class,
+        Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
     ],
 
     /*
@@ -239,7 +240,10 @@ return [
         /**
          * Custom Facades
          */
-        'APIReturn' => \App\Facades\APIReturnFacade::class
+        'APIReturn' => \App\Facades\APIReturnFacade::class,
+        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
+        'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+
     ],
 
 ];

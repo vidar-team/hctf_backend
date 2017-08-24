@@ -9,8 +9,9 @@ class IndexController extends Controller
 {
     public function index(Request $request)
     {
+        $title = 'hctf';
         return APIReturn::success([
-            'hello' => 'hctf'
+            'hello' => $title
         ]);
     }
 }

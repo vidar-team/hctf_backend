@@ -13,5 +13,10 @@
 
 Route::get('/', 'IndexController@index');
 Route::group(["prefix" => "User"], function(){
-   Route::get("index", "UserController@index");
+//   Route::get("index", "UserController@index");
+    Route::post('login', 'TeamController@login');
+    Route::post('register', 'TeamController@register');
+    Route::group(['middleware' => 'jwt.auth.mod'], function () {
+        Route::get('info', 'TeamController@getAuthInfo');
+    });
 });
