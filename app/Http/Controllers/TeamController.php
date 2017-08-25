@@ -54,13 +54,15 @@ class TeamController extends Controller
 
     public function getAuthInfo(Request $request) {
         $team = JWTAuth::parseToken()->toUser();
-        return APIReturn::success(['team' => $team]);
-    }
-
-    public function refreshToken(Request $request) {
-        $team = JWTAuth::parseToken()->toUser();
         $team->lastLoginTime = Carbon::now('Asia/Shanghai');
         $team->save();
-        return APIReturn::success(['msg'=>'+1h']);
+        return APIReturn::success(['team' => $team]);
     }
+//
+//    public function refreshToken(Request $request) {
+//        $team = JWTAuth::parseToken()->toUser();
+//        $team->lastLoginTime = Carbon::now('Asia/Shanghai');
+//        $team->save();
+//        return APIReturn::success(['msg'=>'+1h']);
+//    }
 }
