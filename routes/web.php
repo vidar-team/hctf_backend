@@ -16,7 +16,11 @@ Route::group(["prefix" => "User"], function(){
 //   Route::get("index", "UserController@index");
     Route::post('login', 'TeamController@login');
     Route::post('register', 'TeamController@register');
+    Route::get('token', 'TeamController@refreshToken')->middleware('jwt.refresh');
+
     Route::group(['middleware' => 'jwt.auth.mod'], function () {
         Route::get('info', 'TeamController@getAuthInfo');
+
+        // Method Need Auth
     });
 });

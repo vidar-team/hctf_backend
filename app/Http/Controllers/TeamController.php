@@ -29,7 +29,8 @@ class TeamController extends Controller
         } catch (JWTAuthException $err) {
             return APIReturn::error(500, ['failed_to_create_token'], 500);
         }
-        return response()->json(compact('access_token'));
+
+        return APIReturn::success(['access_token' => $access_token]);
     }
 
     public function register(Request $request) {
@@ -52,7 +53,14 @@ class TeamController extends Controller
     }
 
     public function getAuthInfo(Request $request) {
-        $team = JWTAuth::parseToken()->authenticate();
+        $team = JWTAuth::parseToken()->toUser();
         return APIReturn::success(['team' => $team]);
+    }
+
+    public function refreshToken(Request $request) {
+        $team = JWTAuth::parseToken()->toUser();
+        $team->lastLoginTime = Carbon::now('Asia/Shanghai');
+        $team->save();
+        return APIReturn::success(['msg'=>'+1h']);
     }
 }

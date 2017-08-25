@@ -26,10 +26,10 @@ class VerifyJWTToken
 
         try {
             $user = $this->auth->authenticate($token);
-        } catch (TokenExpiredException $err) {
-            return $this->respond('Token expired', 'token_expired', $err->getStatusCode(), [$err]);
-        } catch (TokenInvalidException $err) {
-            return $this->respond('Token invalid', 'token_invalid', $err->getStatusCode(), [$err]);
+        } catch (TokenExpiredException $e) {
+            return $this->respond('tymon.jwt.expired', 'token_expired', $e->getStatusCode(), [$e]);
+        } catch (JWTException $e) {
+            return $this->respond('tymon.jwt.invalid', 'token_invalid', $e->getStatusCode(), [$e]);
         }
 
         if (! $user) {
