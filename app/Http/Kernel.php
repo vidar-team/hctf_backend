@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Tymon\JWTAuth\Middleware\GetUserFromToken;
 
@@ -56,7 +57,7 @@ class Kernel extends HttpKernel
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'throttle' => ThrottleRequests::class,
         'jwt.auth' =>  GetUserFromToken::class,
         'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
         'jwt.auth.mod' => \App\Http\Middleware\VerifyJWTToken::class,
