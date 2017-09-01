@@ -180,7 +180,6 @@ return [
         /**
          * Repository Providers
          */
-        App\Providers\UserRepositoryProvider::class,
 
         /**
          * Custom Providers
