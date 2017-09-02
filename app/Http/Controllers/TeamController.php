@@ -24,10 +24,10 @@ class TeamController extends Controller
 
         try {
             if (!$access_token = JWTAuth::attempt($credentials)) {
-                return APIReturn::error(401, ['invalid_email_or_password'], 401);
+                return APIReturn::error("invalid_email_or_password", "Email 与密码不匹配", 401);
             }
         } catch (JWTAuthException $err) {
-            return APIReturn::error(500, ['failed_to_create_token'], 500);
+            return APIReturn::error("failed_to_create_token", "无法创建认证Token", 500);
         }
 
         return APIReturn::success(['access_token' => $access_token]);
@@ -44,7 +44,7 @@ class TeamController extends Controller
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
             ]);
         } catch (Exception $err) {
-            return APIReturn::error(500, ['msg' => 'Team/Email already exists.'], 500);
+            return APIReturn::error("email_or_team_already_exist", ['msg' => '队伍或Email已经存在'], 500);
         }
 
         return APIReturn::success([
