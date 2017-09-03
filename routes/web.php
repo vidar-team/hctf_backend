@@ -19,7 +19,7 @@ Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function(){
 //    Route::get('token', 'TeamController@refreshToken')->middleware('jwt.refresh');
 
     Route::group(['middleware' => 'jwt.auth.mod'], function () {
-        Route::get('info', 'TeamController@getAuthInfo')->middleware('jwt.refresh');
+        Route::get('info', 'TeamController@getAuthInfo')->middleware(['jwt.refresh']);
 
         // Method Need Auth
     });

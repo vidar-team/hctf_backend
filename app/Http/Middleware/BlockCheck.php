@@ -5,14 +5,7 @@ namespace App\Http\Middleware;
 use Tymon\JWTAuth\Middleware\BaseMiddleware;
 use Closure;
 
-/**
- * Class isAdmin
- * 判断是否为管理员权限
- * 调用本中间件之前需要判定token有效
- * @package App\Http\Middleware
- * @author Eridanus Sora <sora@sound.moe>
- */
-class isAdmin extends BaseMiddleware
+class BlockCheck extends BaseMiddleware
 {
     /**
      * Handle an incoming request.
@@ -25,9 +18,9 @@ class isAdmin extends BaseMiddleware
     {
         $token = $this->auth->setRequest($request)->getToken();
         $user = $this->auth->authenticate($token);
-        if ($user->admin){
+        if (!$user->banned){
             return $next($request);
         }
-        return \APIReturn::error("permission_denied", "本操作需要管理员权限", 403);
+        return \APIReturn::error("banned", "您已经被封禁", 403);
     }
 }

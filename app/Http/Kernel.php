@@ -2,7 +2,8 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\isAdmin;
+use App\Http\Middleware\adminCheck;
+use App\Http\Middleware\BlockCheck;
 use App\Http\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Tymon\JWTAuth\Middleware\GetUserFromToken;
@@ -62,6 +63,7 @@ class Kernel extends HttpKernel
         'jwt.auth' =>  GetUserFromToken::class,
         'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
         'jwt.auth.mod' => \App\Http\Middleware\VerifyJWTToken::class,
-        'isAdmin' => isAdmin::class
+        'AdminCheck' => AdminCheck::class, // 管理员权限检查
+        'BlockCheck' => BlockCheck::class
     ];
 }
