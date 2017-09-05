@@ -12,7 +12,7 @@
 */
 
 Route::get('/', 'IndexController@index');
-Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function(){
+Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function () {
 //   Route::get("index", "UserController@index");
     Route::post('login', 'TeamController@login');
     Route::post('register', 'TeamController@register');
@@ -20,7 +20,10 @@ Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function(){
 
     Route::group(['middleware' => 'jwt.auth.mod'], function () {
         Route::get('info', 'TeamController@getAuthInfo')->middleware(['jwt.refresh']);
-
         // Method Need Auth
+    });
+
+    Route::group(['middleware' => 'AdminCheck'], function() {
+       Route::get('list', 'TeamController@listTeams');
     });
 });

@@ -37,5 +37,9 @@ class Team extends Authenticatable
         'password', 'remember_token',
     ];
 
+    protected $casts = [
+      'admin' => 'boolean'
+    ];
+
     public $timestamps = false;
 }

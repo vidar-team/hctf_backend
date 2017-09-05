@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Team;
+use Illuminate\Support\Facades\DB;
 use Mockery\Exception;
 use APIReturn;
 use JWTAuth;
@@ -17,6 +18,12 @@ class TeamController extends Controller
         $this->team = $team;
     }
 
+    /**
+     * 登陆
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Aklis
+     */
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -33,6 +40,12 @@ class TeamController extends Controller
         return APIReturn::success(['access_token' => $access_token]);
     }
 
+    /**
+     * 注册
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Aklis
+     */
     public function register(Request $request) {
         $input = $request->only('teamName', 'email', 'password');
         try {
@@ -56,7 +69,7 @@ class TeamController extends Controller
         $team = JWTAuth::parseToken()->toUser();
         $team->lastLoginTime = Carbon::now('Asia/Shanghai');
         $team->save();
-        return APIReturn::success(['team' => $team]);
+        return APIReturn::success($team);
     }
 //
 //    public function refreshToken(Request $request) {
@@ -65,4 +78,15 @@ class TeamController extends Controller
 //        $team->save();
 //        return APIReturn::success(['msg'=>'+1h']);
 //    }
+
+    public function listTeams(Request $request){
+        $page = $request->input('page') ?? '1';
+        try{
+            $teams = DB::table('teams')->skip(($page - 1) * 20)->take(20)->get();
+            return APIReturn::success($teams);
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
 }
