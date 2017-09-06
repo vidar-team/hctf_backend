@@ -78,12 +78,77 @@ class TeamController extends Controller
 //        $team->save();
 //        return APIReturn::success(['msg'=>'+1h']);
 //    }
-
+    /**
+     * 列出所有队伍
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
     public function listTeams(Request $request){
         $page = $request->input('page') ?? '1';
         try{
             $teams = DB::table('teams')->skip(($page - 1) * 20)->take(20)->get();
-            return APIReturn::success($teams);
+            $counts = DB::table('teams')->count();
+            return APIReturn::success([
+                "total" => $counts,
+                "teams" => $teams
+            ]);
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
+     * 封禁队伍
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function banTeam(Request $request){
+        $validator = \Validator::make($request->all(), [
+            'teamId' => 'required|integer'
+        ], [
+            'teamId.required' => '缺少队伍ID字段',
+            'teamId.integer' => '队伍ID必须为整数'
+        ]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+        try{
+            $team = Team::find($request->input('teamId'));
+            $team->banned = true;
+            $team->save();
+            return APIReturn::success();
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
+     * 设定为管理员
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function setAdmin(Request $request){
+        $validator = \Validator::make($request->all(), [
+            'teamId' => 'required|integer'
+        ], [
+            'teamId.required' => '缺少队伍ID字段',
+            'teamId.integer' => '队伍ID必须为整数'
+        ]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+        try{
+            $team = Team::find($request->input('teamId'));
+            $team->admin = true;
+            $team->save();
+            return APIReturn::success();
         }
         catch (\Exception $e){
             return APIReturn::error("database_error", "数据库读写错误", 500);

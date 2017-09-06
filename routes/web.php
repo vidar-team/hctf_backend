@@ -25,5 +25,7 @@ Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function () 
 
     Route::group(['middleware' => 'AdminCheck'], function() {
        Route::get('list', 'TeamController@listTeams');
+       Route::post('ban', 'TeamController@banTeam');
+       Route::post('setAdmin', 'TeamController@setAdmin');
     });
 });
