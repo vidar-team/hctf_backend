@@ -14,14 +14,14 @@ class Team extends Authenticatable
      *
      * @var array
     | id             | int(10) unsigned | NO     | PRI   | <null>    | auto_increment |
-    | teamName       | varchar(255)     | NO     |       | <null>    |                |
-    | email          | varchar(255)     | YES    | UNI   | <null>    |                |
-    | password       | varchar(255)     | NO     |       | <null>    |                |
-    | signUpTime     | datetime         | NO     |       | <null>    |                |
-    | lastLoginTime  | datetime         | NO     |       | <null>    |                |
-    | score          | decimal(8,2)     | NO     |       | 0.00      |                |
-    | banned         | tinyint(1)       | NO     |       | 0         |                |
-    | remember_token | varchar(100)     | YES    |       | <null>    |                |
+     * | teamName       | varchar(255)     | NO     |       | <null>    |                |
+     * | email          | varchar(255)     | YES    | UNI   | <null>    |                |
+     * | password       | varchar(255)     | NO     |       | <null>    |                |
+     * | signUpTime     | datetime         | NO     |       | <null>    |                |
+     * | lastLoginTime  | datetime         | NO     |       | <null>    |                |
+     * | score          | decimal(8,2)     | NO     |       | 0.00      |                |
+     * | banned         | tinyint(1)       | NO     |       | 0         |                |
+     * | remember_token | varchar(100)     | YES    |       | <null>    |                |
      *
      */
     protected $fillable = [
@@ -38,7 +38,8 @@ class Team extends Authenticatable
     ];
 
     protected $casts = [
-      'admin' => 'boolean'
+        'admin' => 'boolean',
+        'banned' => 'boolean'
     ];
 
     public $timestamps = false;

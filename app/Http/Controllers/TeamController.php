@@ -107,19 +107,19 @@ class TeamController extends Controller
      */
     public function banTeam(Request $request){
         $validator = \Validator::make($request->all(), [
-            'teamId' => 'required|integer'
+            'teamId' => 'required|array'
         ], [
             'teamId.required' => '缺少队伍ID字段',
-            'teamId.integer' => '队伍ID必须为整数'
+            'teamId.array' => '队伍ID必须为数组'
         ]);
 
         if ($validator->fails()){
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
         try{
-            $team = Team::find($request->input('teamId'));
-            $team->banned = true;
-            $team->save();
+            Team::where('id', $request->input('teamId'))->update([
+                'banned' => true
+            ]);
             return APIReturn::success();
         }
         catch (\Exception $e){
@@ -135,6 +135,28 @@ class TeamController extends Controller
      */
     public function setAdmin(Request $request){
         $validator = \Validator::make($request->all(), [
+            'teamId' => 'required|array'
+        ], [
+            'teamId.required' => '缺少队伍ID字段',
+            'teamId.array' => '队伍ID必须为数组'
+        ]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+        try{
+            Team::where('id', $request->input('teamId'))->update([
+                'admin' => true
+            ]);
+            return APIReturn::success();
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    public function forceResetPassword(Request $request){
+        $validator = \Validator::make($request->all(), [
             'teamId' => 'required|integer'
         ], [
             'teamId.required' => '缺少队伍ID字段',
@@ -144,14 +166,18 @@ class TeamController extends Controller
         if ($validator->fails()){
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
+
         try{
+            $newPassword = str_random(32);
             $team = Team::find($request->input('teamId'));
-            $team->admin = true;
+            $team->password = bcrypt(hash('sha256', $newPassword));
             $team->save();
-            return APIReturn::success();
+            return APIReturn::success([
+                'newPassword' => $newPassword
+            ]);
         }
         catch (\Exception $e){
-            return APIReturn::error("database_error", "数据库读写错误", 500);
+
         }
     }
 }
