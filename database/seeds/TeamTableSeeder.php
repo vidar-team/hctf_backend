@@ -16,7 +16,7 @@ class TeamTableSeeder extends Seeder
         $team = new Team;
         $team->teamName = 'Vidar';
         $team->email = 'aklis@vidar.club';
-        $team->password = bcrypt('aklis@hctf');
+        $team->password = bcrypt(hash('sha256', 'aklis@hctf'));
         $team->signUpTime = Carbon::now('Asia/Shanghai');
         $team->lastLoginTime = Carbon::now('Asia/Shanghai');
         $team->save();

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use APIReturn;
-use App\Question;
+use App\Challenge;
 use Illuminate\Http\Request;
 use Validator;
 
-class QuestionController extends Controller
+class ChallengeController extends Controller
 {
     /**
-     * 创建新的 Question
+     * 创建新的 Challenge
      *
      * 权限要求: ['isLogin', 'isAdmin']
      *
@@ -42,18 +42,18 @@ class QuestionController extends Controller
         }
 
         try{
-            $newQuestion = new Question();
+            $newChallenge = new Challenge();
 
-            $newQuestion->title = $request->input('title');
-            $newQuestion->description = $request->input('description');
-            $newQuestion->url = $request->input('url');
-            $newQuestion->score = $request->input('score');
-            $newQuestion->release_time = $request->input('release_time');
+            $newChallenge->title = $request->input('title');
+            $newChallenge->description = $request->input('description');
+            $newChallenge->url = $request->input('url');
+            $newChallenge->score = $request->input('score');
+            $newChallenge->release_time = $request->input('release_time');
 
-            $newQuestion->save();
+            $newChallenge->save();
 
             return APIReturn::success([
-               "question" => $newQuestion
+               "challenge" => $newChallenge
             ]);
         }
         catch (\Exception $e){
@@ -62,7 +62,7 @@ class QuestionController extends Controller
     }
 
     /**
-     * 查询指定ID Question 信息
+     * 查询指定ID Challenge 信息
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
@@ -71,17 +71,17 @@ class QuestionController extends Controller
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer'
         ], [
-            'id.required' => '缺少问题ID字段',
-            'id.integer' => '问题ID不合法'
+            'id.required' => '缺少Challenge ID字段',
+            'id.integer' => 'Challenge ID不合法'
         ]);
 
         if ($validator->fails()){
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
         try{
-            $question = Question::find($request->input('id'));
+            $question = Challenge::find($request->input('id'));
             return APIReturn::success([
-                'question' => $question
+                'challenge' => $question
             ]);
         }
         catch (\Exception $e){

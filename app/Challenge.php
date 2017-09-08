@@ -4,8 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Question extends Model
+class Challenge extends Model
 {
-    protected $table = "questions";
+    protected $table = "challenges";
 
 }
