@@ -27,6 +27,7 @@ class AddCategoryTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('categorys');
+        Schema::dropIfExists('categories');
     }
 }
