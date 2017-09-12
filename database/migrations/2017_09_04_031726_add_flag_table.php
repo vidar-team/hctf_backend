@@ -28,6 +28,6 @@ class AddFlagTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::dropIfExists('flags');
     }
 }

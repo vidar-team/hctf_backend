@@ -50,7 +50,7 @@ class TeamController extends Controller
         $input = $request->only('teamName', 'email', 'password');
         try {
             $team = $this->team->create([
-                'teamName' => $input['teamName'],
+                'team_name' => $input['teamName'],
                 'email' => $input['email'],
                 'password' => bcrypt($input['password']),
                 'signUpTime' => Carbon::now('Asia/Shanghai'),

@@ -25,7 +25,7 @@ class Team extends Authenticatable
      *
      */
     protected $fillable = [
-        'teamName', 'email', 'password', 'signUpTime', 'lastLoginTime'
+        'team_name', 'email', 'password', 'signUpTime', 'lastLoginTime'
     ];
 
     /**
