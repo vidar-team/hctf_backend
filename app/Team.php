@@ -13,8 +13,8 @@ class Team extends Authenticatable
      * The attributes that are mass assignable.
      *
      * @var array
-    | id             | int(10) unsigned | NO     | PRI   | <null>    | auto_increment |
-     * | teamName       | varchar(255)     | NO     |       | <null>    |                |
+    | team_id             | int(10) unsigned | NO     | PRI   | <null>    | auto_increment |
+     * | team_name       | varchar(255)     | NO     |       | <null>    |                |
      * | email          | varchar(255)     | YES    | UNI   | <null>    |                |
      * | password       | varchar(255)     | NO     |       | <null>    |                |
      * | signUpTime     | datetime         | NO     |       | <null>    |                |
@@ -36,6 +36,8 @@ class Team extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    protected $primaryKey = "team_id";
 
     protected $casts = [
         'admin' => 'boolean',

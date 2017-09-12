@@ -30,3 +30,11 @@ Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function () 
        Route::post('forceResetPassword', 'TeamController@forceResetPassword');
     });
 });
+
+Route::group(["prefix" => "Category", "middlewaire" => ""], function(){
+   Route::get("list", "CategoryController@list");
+
+    Route::group(['middleware' => 'AdminCheck'], function() {
+        Route::post("create", "CategoryController@create");
+    });
+});
