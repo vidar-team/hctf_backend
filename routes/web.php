@@ -23,18 +23,26 @@ Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function () 
         // Method Need Auth
     });
 
-    Route::group(['middleware' => 'AdminCheck'], function() {
-       Route::get('list', 'TeamController@listTeams');
-       Route::post('ban', 'TeamController@banTeam');
-       Route::post('setAdmin', 'TeamController@setAdmin');
-       Route::post('forceResetPassword', 'TeamController@forceResetPassword');
+    Route::group(['middleware' => 'AdminCheck'], function () {
+        Route::get('list', 'TeamController@listTeams');
+        Route::post('ban', 'TeamController@banTeam');
+        Route::post('setAdmin', 'TeamController@setAdmin');
+        Route::post('forceResetPassword', 'TeamController@forceResetPassword');
     });
 });
 
-Route::group(["prefix" => "Category", "middlewaire" => ""], function(){
-   Route::get("list", "CategoryController@list");
+Route::group(["prefix" => "Category", "middlewaire" => ""], function () {
+    Route::get("list", "CategoryController@list");
 
-    Route::group(['middleware' => 'AdminCheck'], function() {
+    Route::group(['middleware' => 'AdminCheck'], function () {
         Route::post("create", "CategoryController@create");
+    });
+});
+
+Route::group(["prefix" => 'Level'], function () {
+    Route::get("info", "LevelController@info");
+    Route::group(['middleware' => 'AdminCheck'], function () {
+        Route::post('setName', 'LevelController@setName');
+        Route::post('setReleaseTime', 'LevelController@setReleaseTime');
     });
 });

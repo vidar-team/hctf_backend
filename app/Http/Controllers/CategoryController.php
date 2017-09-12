@@ -19,7 +19,6 @@ class CategoryController extends Controller
             return \APIReturn::success($categories);
         }
         catch (\Exception $e){
-            dd($e);
             return \APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
