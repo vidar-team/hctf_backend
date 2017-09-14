@@ -117,7 +117,7 @@ class TeamController extends Controller
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
         try{
-            Team::where('id', $request->input('teamId'))->update([
+            Team::where('team_id', $request->input('teamId'))->update([
                 'banned' => true
             ]);
             return APIReturn::success();
@@ -177,7 +177,7 @@ class TeamController extends Controller
             ]);
         }
         catch (\Exception $e){
-
+            return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
 }

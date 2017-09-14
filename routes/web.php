@@ -44,5 +44,6 @@ Route::group(["prefix" => 'Level'], function () {
     Route::group(['middleware' => 'AdminCheck'], function () {
         Route::post('setName', 'LevelController@setName');
         Route::post('setReleaseTime', 'LevelController@setReleaseTime');
+        Route::post('setRules', 'LevelController@setRules');
     });
 });
