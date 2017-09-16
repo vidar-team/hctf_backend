@@ -67,11 +67,12 @@ class LevelController extends Controller
     {
         $validator = Validator::make($request->only(['levelId', 'releaseTime']), [
             'levelId' => 'required|integer',
-            'releaseTime' => 'required'
+            'releaseTime' => 'required|date'
         ], [
             'levelId.required' => '缺少 Level ID 字段',
             'levelId.integer' => 'Level ID 字段不合法',
-            'releaseTime.required' => '缺少 Level名 字段'
+            'releaseTime.required' => '缺少 发布时间 字段',
+            'releaseTime.date' => '发布时间字段不合法'
         ]);
 
         if ($validator->fails()) {

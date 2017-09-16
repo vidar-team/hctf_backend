@@ -25,6 +25,8 @@ class ChallengeController extends Controller
             'description' => 'required',
             'url' => 'required|url',
             'score' => 'required|numeric',
+            'levelId' => 'required|integer',
+            'flag' => 'required|array',
             'release_time' => 'required|date'
         ], [
             'title.required' => '缺少标题字段',
@@ -33,8 +35,12 @@ class ChallengeController extends Controller
             'url.url' => 'url 字段不合法',
             'score.required' => '缺少基础分数字段',
             'score.numeric' => '基础分数字段不合法',
-            'release_time.required' => '缺少发布时间字段',
-            'release_time.date' => '发布时间字段不合法'
+            'levelId.required' => '缺少 Level ID 字段',
+            'levelId.integer' => 'Level ID 字段不合法',
+            'flag.required' => '缺少 Flag 字段',
+            'flag.array' => 'Flag 字段不合法',
+            'releaseTime.required' => '缺少发布时间字段',
+            'releaseTime.date' => '发布时间字段不合法'
         ]);
 
         if ($validator->fails()){

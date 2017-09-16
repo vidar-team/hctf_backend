@@ -42,6 +42,4 @@ class VerifyJWTToken extends BaseMiddleware
 
         return $next($request);
     }
-
-
 }

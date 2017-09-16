@@ -23,7 +23,7 @@ Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function () 
         // Method Need Auth
     });
 
-    Route::group(['middleware' => 'AdminCheck'], function () {
+    Route::group(['middleware' => ['jwt.auth.mod','AdminCheck']], function () {
         Route::get('list', 'TeamController@listTeams');
         Route::post('ban', 'TeamController@banTeam');
         Route::post('setAdmin', 'TeamController@setAdmin');
@@ -32,15 +32,15 @@ Route::group(["prefix" => "User", "middleware" => "throttle:60,1"], function () 
 });
 
 Route::group(["prefix" => "Category", "middlewaire" => ""], function () {
-    Route::group(['middleware' => 'AdminCheck'], function () {
+    Route::group(['middleware' => ['jwt.auth.mod','AdminCheck']], function () {
         Route::get("list", "CategoryController@list");
         Route::post("create", "CategoryController@create");
     });
 });
 
 Route::group(["prefix" => 'Level'], function () {
-    Route::get("info", "LevelController@info");
-    Route::group(['middleware' => 'AdminCheck'], function () {
+    Route::group(['middleware' => ['jwt.auth.mod','AdminCheck']], function () {
+        Route::get("info", "LevelController@info");
         Route::post('setName', 'LevelController@setName');
         Route::post('setReleaseTime', 'LevelController@setReleaseTime');
         Route::post('setRules', 'LevelController@setRules');
