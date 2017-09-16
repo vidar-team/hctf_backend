@@ -27,7 +27,7 @@ class ChallengeController extends Controller
             'score' => 'required|numeric',
             'levelId' => 'required|integer',
             'flag' => 'required|array',
-            'release_time' => 'required|date'
+            'releaseTime' => 'required|date'
         ], [
             'title.required' => '缺少标题字段',
             'description.required' => '缺少说明字段',
@@ -47,6 +47,10 @@ class ChallengeController extends Controller
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
+//        \DB::listen(function($sql) {
+//            dump($sql);
+//        });
+
         try{
             $newChallenge = new Challenge();
 
@@ -54,9 +58,13 @@ class ChallengeController extends Controller
             $newChallenge->description = $request->input('description');
             $newChallenge->url = $request->input('url');
             $newChallenge->score = $request->input('score');
-            $newChallenge->release_time = $request->input('release_time');
+            $newChallenge->level_id = $request->input('levelId');
+            $newChallenge->config = '{}';
+            $newChallenge->release_time = $request->input('releaseTime');
 
             $newChallenge->save();
+
+            $newChallenge->flags()->createMany($request->input('flag'));
 
             return APIReturn::success([
                "challenge" => $newChallenge

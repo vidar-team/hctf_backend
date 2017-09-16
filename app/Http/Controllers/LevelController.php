@@ -19,7 +19,7 @@ class LevelController extends Controller
     public function info(Request $request)
     {
         try {
-            $levelInfo = Level::find($request->input('levelId'));
+            $levelInfo = Level::where('level_id', $request->input('levelId'))->with('challenges')->first();
             return \APIReturn::success($levelInfo);
         } catch (\Exception $e) {
             return \APIReturn::error("database_error", "数据库读写错误", 500);
