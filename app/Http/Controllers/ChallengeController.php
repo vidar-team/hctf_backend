@@ -27,6 +27,7 @@ class ChallengeController extends Controller
             'score' => 'required|numeric',
             'levelId' => 'required|integer',
             'flag' => 'required|array',
+            'config' => 'required|json',
             'releaseTime' => 'required|date'
         ], [
             'title.required' => '缺少标题字段',
@@ -39,6 +40,8 @@ class ChallengeController extends Controller
             'levelId.integer' => 'Level ID 字段不合法',
             'flag.required' => '缺少 Flag 字段',
             'flag.array' => 'Flag 字段不合法',
+            'config.required' => '缺少设置字段',
+            'config.json' => '设置字段不合法',
             'releaseTime.required' => '缺少发布时间字段',
             'releaseTime.date' => '发布时间字段不合法'
         ]);
@@ -59,12 +62,15 @@ class ChallengeController extends Controller
             $newChallenge->url = $request->input('url');
             $newChallenge->score = $request->input('score');
             $newChallenge->level_id = $request->input('levelId');
-            $newChallenge->config = '{}';
+            $newChallenge->config = $request->input('config');
             $newChallenge->release_time = $request->input('releaseTime');
 
             $newChallenge->save();
-
-            $newChallenge->flags()->createMany($request->input('flag'));
+            $newChallenge->flags()->createMany([
+                [
+                    'flag' => '1'
+                ]
+            ]);
 
             return APIReturn::success([
                "challenge" => $newChallenge
