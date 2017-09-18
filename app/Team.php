@@ -13,7 +13,7 @@ class Team extends Authenticatable
      * The attributes that are mass assignable.
      *
      * @var array
-    | team_id             | int(10) unsigned | NO     | PRI   | <null>    | auto_increment |
+     * | team_id             | int(10) unsigned | NO     | PRI   | <null>    | auto_increment |
      * | team_name       | varchar(255)     | NO     |       | <null>    |                |
      * | email          | varchar(255)     | YES    | UNI   | <null>    |                |
      * | password       | varchar(255)     | NO     |       | <null>    |                |
@@ -45,4 +45,8 @@ class Team extends Authenticatable
     ];
 
     public $timestamps = false;
+
+    public function logs(){
+        return $this->hasMany("App\Log", "team_id", "team_id");
+    }
 }

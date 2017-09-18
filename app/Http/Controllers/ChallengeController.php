@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use APIReturn;
+use App\Category;
 use App\Challenge;
+use App\Log;
+use App\Services\RuleValidator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use JWTAuth;
 use Validator;
 
 class ChallengeController extends Controller
@@ -99,5 +104,37 @@ class ChallengeController extends Controller
         catch (\Exception $e){
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
+    }
+
+    /**
+     * 获得可用题目
+     * @param Request $request
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function list(Request $request){
+        $team = JWTAuth::parseToken()->toUser();
+        $team->load(['logs' => function ($query) {
+            $query->where('status', 'correct');
+        }]);
+        $categories = Category::with(["levels", 'challenges'])->get();
+
+        $validLevels = collect([]);
+        $result = collect([]);
+
+        $categories->every(function ($category) use ($validLevels, $team) {
+            collect($category->levels)->every(function ($level) use ($validLevels, $team) {
+                if ((new RuleValidator($team->team_id, $level->rules))->check($team->logs)) {
+                    $validLevels->push($level->level_id);
+                }
+            });
+        });
+
+        $categories->map(function ($category) use ($validLevels, $result) {
+            $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
+                return $validLevels->contains($challenge->level_id);
+            })->groupBy('level_id');
+        });
+
+        APIReturn::success($result);
     }
 }

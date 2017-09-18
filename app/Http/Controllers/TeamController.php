@@ -71,13 +71,7 @@ class TeamController extends Controller
         $team->save();
         return APIReturn::success($team);
     }
-//
-//    public function refreshToken(Request $request) {
-//        $team = JWTAuth::parseToken()->toUser();
-//        $team->lastLoginTime = Carbon::now('Asia/Shanghai');
-//        $team->save();
-//        return APIReturn::success(['msg'=>'+1h']);
-//    }
+
     /**
      * 列出所有队伍
      * @param Request $request
@@ -155,6 +149,12 @@ class TeamController extends Controller
         }
     }
 
+    /**
+     * 强制重设密码
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
     public function forceResetPassword(Request $request){
         $validator = \Validator::make($request->all(), [
             'teamId' => 'required|integer'
