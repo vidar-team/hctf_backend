@@ -50,10 +50,6 @@ class ChallengeController extends Controller
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-//        \DB::listen(function($sql) {
-//            dump($sql);
-//        });
-
         try{
             $newChallenge = new Challenge();
 
@@ -66,11 +62,7 @@ class ChallengeController extends Controller
             $newChallenge->release_time = $request->input('releaseTime');
 
             $newChallenge->save();
-            $newChallenge->flags()->createMany([
-                [
-                    'flag' => '1'
-                ]
-            ]);
+            $newChallenge->flags()->createMany($request->input('flag'));
 
             return APIReturn::success([
                "challenge" => $newChallenge
