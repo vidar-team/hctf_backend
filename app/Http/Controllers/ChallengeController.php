@@ -6,6 +6,7 @@ use APIReturn;
 use App\Category;
 use App\Challenge;
 use App\Flag;
+use App\Level;
 use App\Log;
 use App\Services\RuleValidator;
 use Illuminate\Http\Request;
@@ -153,16 +154,23 @@ class ChallengeController extends Controller
             $query->where('status', 'correct');
         }]);
 
+
         if ($validator->fails()){
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
-
         try{
-            $flag = Flag::with("level")->where('flag', $request->input('flag'))->first();
-
+            $flag = Flag::where('flag', $request->input('flag'))->first();
+            $level = Level::find($flag->challenge->level_id);
             if (!$flag){
                 //  Flag 不正确
-                return APIReturn::error("wrong_flag", "Flag 不正确");
+                return APIReturn::error("wrong_flag", "Flag 不正确", 403);
+            }
+
+            if (Log::where([
+                'challenge_id' => $flag->challenge_id,
+                'status' => 'correct'
+            ])){
+                return APIReturn::error("duplicate_submit", "Flag 已经提交过", 403);
             }
 
             if ($flag->team_id !== 0){
@@ -171,16 +179,16 @@ class ChallengeController extends Controller
                     // 提交了其他队伍的 Flag
                     $team->banned = true;
                     $team->save();
-                    return APIReturn::error("banned", "队伍已被封禁");
+                    return APIReturn::error("banned", "队伍已被封禁", 403);
                 }
             }
 
-            $ruleValidator = new RuleValidator($team->team_id, $flag->level->rules);
+            $ruleValidator = new RuleValidator($team->team_id, $level->rules);
             if (!$ruleValidator->check($team->logs)){
                 // 该队伍提交了还未开放的问题的 flag
                 $team->banned = true;
                 $team->save();
-                return APIReturn::error("banned", "队伍已被封禁");
+                return APIReturn::error("banned", "队伍已被封禁", 403);
             }
 
             // TODO: 题目完成时间与最小限制比对
@@ -189,8 +197,8 @@ class ChallengeController extends Controller
             $successLog = new Log();
             $successLog->team_id = $team->team_id;
             $successLog->challenge_id = $flag->challenge_id;
-            $successLog->level_id = $flag->level_id;
-            $successLog->category_id = $flag->category_id;
+            $successLog->level_id = $flag->challenge->level_id;
+            $successLog->category_id = $level->category_id;
             $successLog->status = "correct";
             $successLog->flag = $request->input('flag');
             $successLog->score = 0.0;
