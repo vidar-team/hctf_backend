@@ -55,4 +55,8 @@ Route::group(['prefix' => 'Challenge'], function () {
     Route::group(['middleware' => ['jwt.auth.mod']], function () {
         Route::get('list', 'ChallengeController@list');
     });
+
+    Route::group(['middleware' => ['jwt.auth.mod', 'BlockCheck']], function(){
+       Route::post('submitFlag', 'ChallengeController@submitFlag');
+    });
 });

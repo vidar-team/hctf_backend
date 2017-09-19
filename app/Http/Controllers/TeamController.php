@@ -139,7 +139,7 @@ class TeamController extends Controller
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
         try{
-            Team::where('id', $request->input('teamId'))->update([
+            Team::where('team_id', $request->input('teamId'))->update([
                 'admin' => true
             ]);
             return APIReturn::success();

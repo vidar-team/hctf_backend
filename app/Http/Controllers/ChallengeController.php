@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use APIReturn;
 use App\Category;
 use App\Challenge;
+use App\Flag;
 use App\Log;
 use App\Services\RuleValidator;
 use Illuminate\Http\Request;
@@ -51,11 +52,11 @@ class ChallengeController extends Controller
             'releaseTime.date' => '发布时间字段不合法'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        try{
+        try {
             $newChallenge = new Challenge();
 
             $newChallenge->title = $request->input('title');
@@ -70,10 +71,9 @@ class ChallengeController extends Controller
             $newChallenge->flags()->createMany($request->input('flag'));
 
             return APIReturn::success([
-               "challenge" => $newChallenge
+                "challenge" => $newChallenge
             ]);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -84,7 +84,8 @@ class ChallengeController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function info(Request $request){
+    public function info(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer'
         ], [
@@ -92,16 +93,15 @@ class ChallengeController extends Controller
             'id.integer' => 'Challenge ID不合法'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
-        try{
+        try {
             $question = Challenge::find($request->input('id'));
             return APIReturn::success([
                 'challenge' => $question
             ]);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -110,8 +110,10 @@ class ChallengeController extends Controller
      * 获得可用题目
      * @param Request $request
      * @author Eridanus Sora <sora@sound.moe>
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function list(Request $request){
+    public function list(Request $request)
+    {
         $team = JWTAuth::parseToken()->toUser();
         $team->load(['logs' => function ($query) {
             $query->where('status', 'correct');
@@ -135,6 +137,77 @@ class ChallengeController extends Controller
             })->groupBy('level_id');
         });
 
-        APIReturn::success($result);
+        return APIReturn::success($result);
+    }
+
+    public function submitFlag(Request $request)
+    {
+        $validator = Validator::make($request->only('flag'), [
+            'flag' => 'required'
+        ], [
+            'flag.required' => '缺少 Flag 字段'
+        ]);
+
+        $team = JWTAuth::parseToken()->toUser();
+        $team->load(['logs' => function ($query) {
+            $query->where('status', 'correct');
+        }]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            $flag = Flag::with("level")->where('flag', $request->input('flag'))->first();
+
+            if (!$flag){
+                //  Flag 不正确
+                return APIReturn::error("wrong_flag", "Flag 不正确");
+            }
+
+            if ($flag->team_id !== 0){
+                // Flag 是限定队伍的
+                if ($flag->team_id !== $team->team_id){
+                    // 提交了其他队伍的 Flag
+                    $team->banned = true;
+                    $team->save();
+                    return APIReturn::error("banned", "队伍已被封禁");
+                }
+            }
+
+            $ruleValidator = new RuleValidator($team->team_id, $flag->level->rules);
+            if (!$ruleValidator->check($team->logs)){
+                // 该队伍提交了还未开放的问题的 flag
+                $team->banned = true;
+                $team->save();
+                return APIReturn::error("banned", "队伍已被封禁");
+            }
+
+            // TODO: 题目完成时间与最小限制比对
+
+            // 验证完毕 添加记录
+            $successLog = new Log();
+            $successLog->team_id = $team->team_id;
+            $successLog->challenge_id = $flag->challenge_id;
+            $successLog->level_id = $flag->level_id;
+            $successLog->category_id = $flag->category_id;
+            $successLog->status = "correct";
+            $successLog->flag = $request->input('flag');
+            $successLog->score = 0.0;
+            $successLog->save();
+            // 动态分数应用
+            $challengeLogs = Log::where("challenge_id", $flag->challenge_id)->get();
+            $dynamicScore = $flag->challenge->score / (1 + $challengeLogs->count() / 10);  // TODO: 临时公式
+            Log::where("challenge_id", $flag->challenge_id)->update([
+               "score" => $dynamicScore
+            ]);
+
+            return APIReturn::success([
+                "score" => $dynamicScore
+            ]);
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
     }
 }
