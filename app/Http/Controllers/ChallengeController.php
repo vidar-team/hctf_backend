@@ -9,6 +9,7 @@ use App\Flag;
 use App\Level;
 use App\Log;
 use App\Services\RuleValidator;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use JWTAuth;
@@ -141,6 +142,12 @@ class ChallengeController extends Controller
         return APIReturn::success($result);
     }
 
+    /**
+     * 提交 Flag
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
     public function submitFlag(Request $request)
     {
         $validator = Validator::make($request->only('flag'), [
@@ -184,7 +191,7 @@ class ChallengeController extends Controller
             }
 
             $ruleValidator = new RuleValidator($team->team_id, $level->rules);
-            if (!$ruleValidator->check($team->logs)){
+            if (!$ruleValidator->check($team->logs) || Carbon::now() < $flag->challenge->release_time || Carbon::now() < $level->release_time){
                 // 该队伍提交了还未开放的问题的 flag
                 $team->banned = true;
                 $team->save();
@@ -204,7 +211,10 @@ class ChallengeController extends Controller
             $successLog->score = 0.0;
             $successLog->save();
             // 动态分数应用
-            $challengeLogs = Log::where("challenge_id", $flag->challenge_id)->get();
+            $challengeLogs = Log::where([
+                "challenge_id" => $flag->challenge_id,
+                'status' => 'correct'
+            ])->get();
             $dynamicScore = $flag->challenge->score / (1 + $challengeLogs->count() / 10);  // TODO: 临时公式
             Log::where("challenge_id", $flag->challenge_id)->update([
                "score" => $dynamicScore
