@@ -49,4 +49,13 @@ class Team extends Authenticatable
     public function logs(){
         return $this->hasMany("App\Log", "team_id", "team_id");
     }
+
+    /**
+     * 分数和
+     * @return float
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function getScoreAttribute(){
+        return floatval($this->logs()->sum('score'));
+    }
 }

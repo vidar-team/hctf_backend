@@ -120,4 +120,37 @@ class LevelController extends Controller
             return \APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
+
+    /**
+     * 删除 Level
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function deleteLevel(Request $request)
+    {
+        $validator = Validator::make($request->only('levelId'), [
+            'levelId' => 'required',
+        ], [
+            'levelId.required' => '缺少 Level ID 字段'
+        ]);
+
+        try{
+            $level = Level::find($request->input('levelId'));
+
+            if (!$level){
+                return APIReturn::error("level_not_found", "Level 不存在", 404);
+            }
+
+            if ($level->challenges->count() > 0){
+                return APIReturn::error("level_not_empty", "Level 下仍有 Challenge", 403);
+            }
+
+            $level->delete();
+            return APIReturn::success();
+        }
+        catch (\Exception $e){
+            return \APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
 }

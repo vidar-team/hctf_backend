@@ -50,4 +50,28 @@ class CategoryController extends Controller
             return \APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
+
+    public function deleteCategory(Request $request){
+        $validator = \Validator::make($request->only('categoryId'), [
+            'categoryId' => 'required'
+        ], [
+            'categoryId.required' => '缺少 Category ID 字段'
+        ]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            $category = Category::find($request->input('categoryId'));
+            if ($category->levels->count() > 0){
+                return \APIReturn::error("category_not_empty", "分类下仍有 Level");
+            }
+            $category->delete();
+            return \APIReturn::success();
+        }
+        catch (\Exception $e){
+            return \APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
 }
