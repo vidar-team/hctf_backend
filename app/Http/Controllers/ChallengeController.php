@@ -200,7 +200,15 @@ class ChallengeController extends Controller
                 return APIReturn::error("banned", "队伍已被封禁", 403);
             }
 
-            // TODO: 题目完成时间与最小限制比对
+            // 题目完成时间与最小限制比对
+            if (json_decode($flag->challenge->config)->minimumSolveTime !== 0){
+                if ($ruleValidator->secondsAfterOpen() < json_decode($flag->challenge->config)->minimumSolveTime){
+                    // 做题时间太短
+                    $team->banned = true;
+                    $team->save();
+                    return APIReturn::error("banned", "队伍已被封禁", 403);
+                }
+            }
 
             // 验证完毕 添加记录
             $successLog = new Log();
@@ -227,6 +235,7 @@ class ChallengeController extends Controller
             ]);
         }
         catch (\Exception $e){
+            dump($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
