@@ -167,16 +167,18 @@ class ChallengeController extends Controller
         }
         try{
             $flag = Flag::where('flag', $request->input('flag'))->first();
-            $level = Level::find($flag->challenge->level_id);
+
             if (!$flag){
                 //  Flag 不正确
                 return APIReturn::error("wrong_flag", "Flag 不正确", 403);
             }
 
+            $level = Level::find($flag->challenge->level_id);
+
             if (Log::where([
                 'challenge_id' => $flag->challenge_id,
                 'status' => 'correct'
-            ])){
+            ])->first()){
                 return APIReturn::error("duplicate_submit", "Flag 已经提交过", 403);
             }
 
@@ -191,7 +193,7 @@ class ChallengeController extends Controller
             }
 
             $ruleValidator = new RuleValidator($team->team_id, $level->rules);
-            if (!$ruleValidator->check($team->logs) || Carbon::now() < $flag->challenge->release_time || Carbon::now() < $level->release_time){
+            if (!$ruleValidator->check($team->logs) || Carbon::now('Asia/Shanghai') < $flag->challenge->release_time || Carbon::now('Asia/Shanghai') < $level->release_time){
                 // 该队伍提交了还未开放的问题的 flag
                 $team->banned = true;
                 $team->save();
@@ -215,7 +217,7 @@ class ChallengeController extends Controller
                 "challenge_id" => $flag->challenge_id,
                 'status' => 'correct'
             ])->get();
-            $dynamicScore = $flag->challenge->score / (1 + $challengeLogs->count() / 10);  // TODO: 临时公式
+            $dynamicScore = round($flag->challenge->score / (1 + $challengeLogs->count() / 10), 2);  // TODO: 临时公式
             Log::where("challenge_id", $flag->challenge_id)->update([
                "score" => $dynamicScore
             ]);
