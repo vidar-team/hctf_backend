@@ -29,6 +29,7 @@ class TeamTableSeeder extends Seeder
                 'email' => 'aklis@vidar.club',
                 'password' => bcrypt(hash('sha256', 'aklis@hctf')),
                 'signUpTime' => Carbon::now('Asia/Shanghai'),
+                'admin' => true,
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
             ),
             array(

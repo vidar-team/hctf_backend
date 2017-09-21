@@ -2,7 +2,7 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\adminCheck;
+use App\Http\Middleware\AdminCheck;
 use App\Http\Middleware\BlockCheck;
 use App\Http\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
