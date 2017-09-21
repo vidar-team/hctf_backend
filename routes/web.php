@@ -45,6 +45,7 @@ Route::group(['prefix' => 'Level'], function () {
         Route::post('setReleaseTime', 'LevelController@setReleaseTime');
         Route::post('setRules', 'LevelController@setRules');
         Route::post('deleteLevel', 'LevelController@deleteLevel');
+        Route::post('create', 'LevelController@create');
     });
 });
 

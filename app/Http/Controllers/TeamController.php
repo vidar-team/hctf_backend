@@ -72,6 +72,8 @@ class TeamController extends Controller
         return APIReturn::success($team);
     }
 
+
+
     /**
      * 列出所有队伍
      * @param Request $request

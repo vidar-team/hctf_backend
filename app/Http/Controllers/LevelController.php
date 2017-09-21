@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use APIReturn;
+use App\Category;
 use App\Level;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -10,6 +11,42 @@ use Illuminate\Support\Facades\Validator;
 
 class LevelController extends Controller
 {
+
+    public function create(Request $request){
+        $validator = Validator::make($request->only(['categoryId', 'levelName', 'releaseTime']), [
+            'categoryId' => 'required|integer',
+            'levelName' => 'required',
+            'releaseTime' => 'required|date'
+        ], [
+            'categoryId.required' => '缺少分类ID字段',
+            'categoryId.integer' => '分类ID不合法',
+            'levelName.required' => '缺少 LevelName 字段',
+            'releaseTime.required' => '缺少开放时间字段',
+            'releaseTime.date' => '开放时间字段不合法'
+        ]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            $category = Category::find($request->input('categoryId'));
+            if (!$category){
+                return APIReturn::error("category_not_found", "分类不存在", 404);
+            }
+            $newLevel = new Level();
+            $newLevel->level_name = $request->input('levelName');
+            $newLevel->release_time = $request->input('releaseTime');
+            $newLevel->rules = '[]';
+
+            $category->levels()->save($newLevel);
+            return APIReturn::success($newLevel);
+        }
+        catch (\Exception $e){
+            return \APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
     /**
      * 查询 Level 信息
      * @param Request $request
