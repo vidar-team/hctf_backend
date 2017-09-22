@@ -124,6 +124,34 @@ class TeamController extends Controller
     }
 
     /**
+     * 解除封禁
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function unbanTeam(Request $request){
+        $validator = \Validator::make($request->all(), [
+            'teamId' => 'required|array'
+        ], [
+            'teamId.required' => '缺少队伍ID字段',
+            'teamId.array' => '队伍ID必须为数组'
+        ]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+        try{
+            Team::where('team_id', $request->input('teamId'))->update([
+                'banned' => false
+            ]);
+            return APIReturn::success();
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
      * 设定为管理员
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse

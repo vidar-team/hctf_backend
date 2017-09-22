@@ -26,6 +26,7 @@ Route::group(['prefix' => 'User', 'middleware' => 'throttle:60,1'], function () 
     Route::group(['middleware' => ['jwt.auth.mod', 'AdminCheck']], function () {
         Route::get('list', 'TeamController@listTeams');
         Route::post('ban', 'TeamController@banTeam');
+        Route::post('unban', 'TeamController@unbanTeam');
         Route::post('setAdmin', 'TeamController@setAdmin');
         Route::post('forceResetPassword', 'TeamController@forceResetPassword');
     });
