@@ -83,8 +83,8 @@ class TeamController extends Controller
     public function listTeams(Request $request){
         $page = $request->input('page') ?? '1';
         try{
-            $teams = DB::table('teams')->skip(($page - 1) * 20)->take(20)->get();
-            $counts = DB::table('teams')->count();
+            $teams = Team::with('logs')->skip(($page - 1) * 20)->take(20)->get();
+            $counts = Team::count();
             return APIReturn::success([
                 "total" => $counts,
                 "teams" => $teams
