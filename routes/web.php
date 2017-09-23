@@ -53,6 +53,7 @@ Route::group(['prefix' => 'Level'], function () {
 Route::group(['prefix' => 'Challenge'], function () {
     Route::group(['middleware' => ['jwt.auth.mod', 'AdminCheck']], function () {
         Route::post('create', 'ChallengeController@create');
+        Route::post('delete', 'ChallengeController@deleteChallenge');
     });
 
     Route::group(['middleware' => ['jwt.auth.mod']], function () {

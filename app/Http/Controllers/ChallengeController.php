@@ -143,6 +143,38 @@ class ChallengeController extends Controller
     }
 
     /**
+     * 删除 Challenge
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function deleteChallenge(Request $request){
+        $validator = Validator::make($request->only('challengeId'), [
+            'challengeId' => 'required'
+        ], [
+            'challengeId.required' => '缺少 Challenge ID 字段'
+        ]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            // 删除关联的所有 Flag
+            $challenge = Challenge::find($request->input('challengeId'));
+            $challenge->flags()->delete();
+            $challenge->logs()->delete();
+            // 删除本体
+            $challenge->delete();
+
+            return APIReturn::success();
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
      * 提交 Flag
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse

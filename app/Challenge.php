@@ -15,4 +15,8 @@ class Challenge extends Model
     public function flags(){
         return $this->hasMany('App\Flag', 'challenge_id', 'challenge_id');
     }
+
+    public function logs(){
+        return $this->hasMany('App\Log', 'challenge_id', 'challenge_id');
+    }
 }
