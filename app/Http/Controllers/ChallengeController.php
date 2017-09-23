@@ -170,6 +170,7 @@ class ChallengeController extends Controller
 
             if (!$flag){
                 //  Flag 不正确
+                \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
                 return APIReturn::error("wrong_flag", "Flag 不正确", 403);
             }
 
@@ -188,6 +189,7 @@ class ChallengeController extends Controller
                     // 提交了其他队伍的 Flag
                     $team->banned = true;
                     $team->save();
+                    \Logger::info("队伍 " . $team->team_name . ' 由于提交其他队伍的 Flag 被系统自动封禁');
                     return APIReturn::error("banned", "队伍已被封禁", 403);
                 }
             }
@@ -197,6 +199,7 @@ class ChallengeController extends Controller
                 // 该队伍提交了还未开放的问题的 flag
                 $team->banned = true;
                 $team->save();
+                \Logger::info("队伍 " . $team->team_name . ' 由于提交未开放任务的 Flag 被系统自动封禁');
                 return APIReturn::error("banned", "队伍已被封禁", 403);
             }
 
@@ -206,6 +209,7 @@ class ChallengeController extends Controller
                     // 做题时间太短
                     $team->banned = true;
                     $team->save();
+                    \Logger::info("队伍 " . $team->team_name . ' 由于开放问题到提交正确 Flag 的时间间隔小于阈值被系统自动封禁');
                     return APIReturn::error("banned", "队伍已被封禁", 403);
                 }
             }
@@ -229,7 +233,7 @@ class ChallengeController extends Controller
             Log::where("challenge_id", $flag->challenge_id)->update([
                "score" => $dynamicScore
             ]);
-
+            \Logger::info("队伍 " . $team->team_name . ' 提交问题 ' . $flag->challenge->title . ' Flag: ' . $request->input('flag') . ' （正确）');
             return APIReturn::success([
                 "score" => $dynamicScore
             ]);
