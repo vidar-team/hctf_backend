@@ -41,7 +41,7 @@ class Team extends Authenticatable
 
     protected $casts = [
         'admin' => 'boolean',
-        'banned' => 'boolean'
+        'banned' => 'boolean',
     ];
 
     public $timestamps = false;
@@ -57,5 +57,19 @@ class Team extends Authenticatable
      */
     public function getScoreAttribute(){
         return floatval($this->logs()->sum('score'));
+    }
+
+    /**
+     * 按分数排行
+     * @param $query
+     * @param string $order
+     * @return mixed
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function scopeOrderByScore($query, $order = "desc"){
+        return $query->leftJoin('logs', 'logs.team_id', '=', 'teams.team_id')
+            ->groupBy(['teams.team_id'])
+            ->addSelect(['*', \DB::raw('sum(logs.score) as score')])
+            ->orderBy('score', $order);
     }
 }

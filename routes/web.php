@@ -16,6 +16,7 @@ Route::group(['prefix' => 'User', 'middleware' => 'throttle:60,1'], function () 
 //   Route::get('index', 'UserController@index');
     Route::post('login', 'TeamController@login');
     Route::post('register', 'TeamController@register');
+    Route::get('ranking', 'TeamController@getRanking');
 //    Route::get('token', 'TeamController@refreshToken')->middleware('jwt.refresh');
 
     Route::group(['middleware' => 'jwt.auth.mod'], function () {

@@ -210,4 +210,20 @@ class TeamController extends Controller
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
+
+    /**
+     * 获得排行
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function getRanking(Request $request){
+        try{
+            $result = Team::orderByScore()->take(20)->get();
+            return APIReturn::success($result);
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
 }

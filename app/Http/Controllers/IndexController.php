@@ -15,7 +15,6 @@ class IndexController extends Controller
 {
     public function index(Request $request)
     {
-        \Logger::info("TEST");
         $title = 'hctf';
         return APIReturn::success([
             'hello' => $title
