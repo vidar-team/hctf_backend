@@ -219,10 +219,12 @@ class TeamController extends Controller
      */
     public function getRanking(Request $request){
         try{
-            $result = Team::orderByScore()->take(20)->get();
+            $result = Team::where('admin', '=', '0')->orderByScore()->take(20)->get();
+            $result->makeHidden(['email']);
             return APIReturn::success($result);
         }
         catch (\Exception $e){
+            dump($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }

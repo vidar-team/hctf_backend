@@ -34,7 +34,7 @@ class Team extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token'
     ];
 
     protected $primaryKey = "team_id";
@@ -42,6 +42,7 @@ class Team extends Authenticatable
     protected $casts = [
         'admin' => 'boolean',
         'banned' => 'boolean',
+        'dynamic_total_score' => 'float'
     ];
 
     public $timestamps = false;
@@ -69,7 +70,7 @@ class Team extends Authenticatable
     public function scopeOrderByScore($query, $order = "desc"){
         return $query->leftJoin('logs', 'logs.team_id', '=', 'teams.team_id')
             ->groupBy(['teams.team_id'])
-            ->addSelect(['*', \DB::raw('sum(logs.score) as score')])
-            ->orderBy('score', $order);
+            ->addSelect(['*', \DB::raw('sum(logs.score) as dynamic_total_score')])
+            ->orderBy('dynamic_total_score', $order);
     }
 }
