@@ -121,19 +121,17 @@ class ChallengeController extends Controller
             $query->where('status', 'correct');
         }]);
         $categories = Category::with(["levels", 'challenges'])->get();
-
         $validLevels = collect([]);
         $result = collect([]);
-
-        $categories->every(function ($category) use ($validLevels, $team) {
-            collect($category->levels)->every(function ($level) use ($validLevels, $team) {
+        $categories->each(function ($category) use ($validLevels, $team) {
+            collect($category->levels)->each(function ($level) use ($validLevels, $team) {
                 if ((new RuleValidator($team->team_id, $level->rules))->check($team->logs)) {
                     $validLevels->push($level->level_id);
                 }
             });
         });
 
-        $categories->map(function ($category) use ($validLevels, $result) {
+        $categories->each(function ($category) use ($validLevels, $result) {
             $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
                 return $validLevels->contains($challenge->level_id);
             })->groupBy('level_id');
@@ -271,7 +269,6 @@ class ChallengeController extends Controller
             ]);
         }
         catch (\Exception $e){
-            dump($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }

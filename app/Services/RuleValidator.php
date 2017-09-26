@@ -30,6 +30,7 @@ class RuleValidator {
             }
             return $rule;
         });
+
     }
 
     /**
