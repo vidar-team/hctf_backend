@@ -72,6 +72,9 @@ class ChallengeController extends Controller
             $newChallenge->save();
             $newChallenge->flags()->createMany($request->input('flag'));
 
+
+            \Logger::info("一个新的 Challenge: " . $newChallenge->title . " 被创建");
+
             return APIReturn::success([
                 "challenge" => $newChallenge
             ]);
@@ -163,6 +166,7 @@ class ChallengeController extends Controller
             $challenge->flags()->delete();
             $challenge->logs()->delete();
             // 删除本体
+            \Logger::info("Challenge " . $challenge->title . " 被删除");
             $challenge->delete();
 
             return APIReturn::success();

@@ -44,6 +44,7 @@ class CategoryController extends Controller
             $category = new Category();
             $category->category_name = $request->input('categoryName');
             $category->save();
+            \Logger::info("Category: " . $category->category_name . " 被创建");
             return \APIReturn::success($category);
         }
         catch (\Exception $e){
@@ -51,6 +52,12 @@ class CategoryController extends Controller
         }
     }
 
+    /**
+     * 删除 分类
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
     public function deleteCategory(Request $request){
         $validator = \Validator::make($request->only('categoryId'), [
             'categoryId' => 'required'
@@ -67,6 +74,7 @@ class CategoryController extends Controller
             if ($category->levels->count() > 0){
                 return \APIReturn::error("category_not_empty", "分类下仍有 Level");
             }
+            \Logger::info("Category: " .  $category->category_name . " 被删除");
             $category->delete();
             return \APIReturn::success();
         }

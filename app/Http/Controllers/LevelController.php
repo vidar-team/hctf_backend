@@ -40,6 +40,8 @@ class LevelController extends Controller
             $newLevel->rules = '[]';
 
             $category->levels()->save($newLevel);
+
+            \Logger::info("分类 " . $category->category_name . " 下创建了一个新的 Level: " . $newLevel->level_name);
             return APIReturn::success($newLevel);
         }
         catch (\Exception $e){
@@ -88,6 +90,7 @@ class LevelController extends Controller
             $level = Level::find($request->input('levelId'));
             $level->level_name = $request->input('levelName');
             $level->save();
+            \Logger::info("Level (ID:" . $level->level_id . ")的名称被修改为" . $level->level_name);
             return \APIReturn::success($level);
         } catch (\Exception $e) {
             return \APIReturn::error("database_error", "数据库读写错误", 500);
@@ -120,6 +123,7 @@ class LevelController extends Controller
             $level = Level::find($request->input('levelId'));
             $level->release_time = $request->input('releaseTime');
             $level->save();
+            \Logger::info("Level (ID:" . $level->level_id . ")的开放时间被修改为" . $level->release_time);
             return \APIReturn::success($level);
         } catch (\Exception $e) {
             return \APIReturn::error("database_error", "数据库读写错误", 500);
@@ -152,6 +156,7 @@ class LevelController extends Controller
             $level = Level::find($request->input('levelId'));
             $level->rules = json_decode($request->input('rules'), true);
             $level->save();
+            \Logger::info("Level (ID:" . $level->level_id . ")的开放规则被修改");
             return \APIReturn::success($level);
         } catch (\Exception $e) {
             return \APIReturn::error("database_error", "数据库读写错误", 500);
@@ -182,7 +187,7 @@ class LevelController extends Controller
             if ($level->challenges->count() > 0){
                 return APIReturn::error("level_not_empty", "Level 下仍有 Challenge", 403);
             }
-
+            \Logger::info("Level (ID:" . $level->level_id . ") 被删除");
             $level->delete();
             return APIReturn::success();
         }
