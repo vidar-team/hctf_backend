@@ -56,7 +56,7 @@ class TeamController extends Controller
                 'signUpTime' => Carbon::now('Asia/Shanghai'),
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
             ]);
-        } catch (Exception $err) {
+        } catch (\Exception $err) {
             return APIReturn::error("email_or_team_already_exist", "队伍或Email已经存在", 500);
         }
 
