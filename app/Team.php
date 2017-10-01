@@ -47,7 +47,8 @@ class Team extends Authenticatable
 
     public $timestamps = false;
 
-    public function logs(){
+    public function logs()
+    {
         return $this->hasMany("App\Log", "team_id", "team_id");
     }
 
@@ -56,7 +57,8 @@ class Team extends Authenticatable
      * @return float
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function getScoreAttribute(){
+    public function getScoreAttribute()
+    {
         return floatval($this->logs()->sum('score'));
     }
 
@@ -67,8 +69,11 @@ class Team extends Authenticatable
      * @return mixed
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function scopeOrderByScore($query, $order = "desc"){
-        return $query->leftJoin('logs', 'logs.team_id', '=', 'teams.team_id')
+    public function scopeOrderByScore($query, $order = "desc")
+    {
+        return $query->leftJoin('logs', function ($join) {
+            $join->on('logs.team_id', '=', 'teams.team_id')->where('status', '=', 'correct');
+        })
             ->groupBy(['teams.team_id'])
             ->addSelect(['*', \DB::raw('sum(logs.score) as dynamic_total_score')])
             ->orderBy('dynamic_total_score', $order);
