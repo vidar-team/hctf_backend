@@ -96,6 +96,43 @@ class TeamController extends Controller
     }
 
     /**
+     * 批量查询用户信息 * 公开方法
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function publicListTeams(Request $request){
+        $validator = \Validator::make($request->only("teamId"), [
+            'teamId' => 'required|array',
+        ], [
+           'teamId.required' => '缺少 teamId 字段',
+           'teamId.array' => 'teamId 字段只能为数组'
+        ]);
+
+        if ($validator->fails()){
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            $result = Team::with(["logs" => function($query){
+                $query->where("status", "correct")->orderBy("created_at", "asc");
+            }])->whereIn("team_id", $request->input('teamId'))->get();
+            $result->makeHidden(['email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime']);
+            // 隐藏提交的 Flag 内容
+            $result->each(function($team){
+                $team->logs->each(function($log){
+                    $log->makeHidden('flag');
+                });
+            });
+            return APIReturn::success($result);
+        }
+        catch (\Exception $e){
+            dd($e);
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
      * 封禁队伍
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -221,7 +258,9 @@ class TeamController extends Controller
         try{
             $result = Team::where('admin', '=', '0')->orderByScore()->take(20)->get();
 
-            $result->makeHidden(['email']);
+            $result->makeHidden([
+                'email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'flag', 'category_id', 'level_id', 'challenge_id', 'log_id', 'score'
+            ]);
             return APIReturn::success($result);
         }
         catch (\Exception $e){
