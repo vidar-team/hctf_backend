@@ -14,7 +14,9 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 class TeamController extends Controller
 {
     private $team;
-    public function __construct(Team $team) {
+
+    public function __construct(Team $team)
+    {
         $this->team = $team;
     }
 
@@ -46,7 +48,8 @@ class TeamController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Aklis
      */
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
         $input = $request->only('teamName', 'email', 'password');
         try {
             $team = $this->team->create([
@@ -65,13 +68,13 @@ class TeamController extends Controller
         ]);
     }
 
-    public function getAuthInfo(Request $request) {
+    public function getAuthInfo(Request $request)
+    {
         $team = JWTAuth::parseToken()->toUser();
         $team->lastLoginTime = Carbon::now('Asia/Shanghai');
         $team->save();
         return APIReturn::success($team);
     }
-
 
 
     /**
@@ -80,17 +83,17 @@ class TeamController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function listTeams(Request $request){
+    public function listTeams(Request $request)
+    {
         $page = $request->input('page') ?? '1';
-        try{
+        try {
             $teams = Team::with('logs')->skip(($page - 1) * 20)->take(20)->get();
             $counts = Team::count();
             return APIReturn::success([
                 "total" => $counts,
                 "teams" => $teams
             ]);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -101,32 +104,33 @@ class TeamController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function publicListTeams(Request $request){
+    public function publicListTeams(Request $request)
+    {
         $validator = \Validator::make($request->only("teamId"), [
-            'teamId' => 'required|array',
+            'teamId' => 'required|array|between:0,21',
         ], [
-           'teamId.required' => '缺少 teamId 字段',
-           'teamId.array' => 'teamId 字段只能为数组'
+            'teamId.required' => '缺少 teamId 字段',
+            'teamId.array' => 'teamId 字段只能为数组',
+            'teamId.between' => 'teamId 超过数量限制'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        try{
-            $result = Team::with(["logs" => function($query){
+        try {
+            $result = Team::with(["logs" => function ($query) {
                 $query->where("status", "correct")->orderBy("created_at", "asc");
             }])->whereIn("team_id", $request->input('teamId'))->get();
             $result->makeHidden(['email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime']);
             // 隐藏提交的 Flag 内容
-            $result->each(function($team){
-                $team->logs->each(function($log){
+            $result->each(function ($team) {
+                $team->logs->each(function ($log) {
                     $log->makeHidden('flag');
                 });
             });
             return APIReturn::success($result);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             dd($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
@@ -138,7 +142,8 @@ class TeamController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function banTeam(Request $request){
+    public function banTeam(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'teamId' => 'required|array'
         ], [
@@ -146,16 +151,15 @@ class TeamController extends Controller
             'teamId.array' => '队伍ID必须为数组'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
-        try{
+        try {
             Team::where('team_id', $request->input('teamId'))->update([
                 'banned' => true
             ]);
             return APIReturn::success();
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -166,7 +170,8 @@ class TeamController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function unbanTeam(Request $request){
+    public function unbanTeam(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'teamId' => 'required|array'
         ], [
@@ -174,16 +179,15 @@ class TeamController extends Controller
             'teamId.array' => '队伍ID必须为数组'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
-        try{
+        try {
             Team::where('team_id', $request->input('teamId'))->update([
                 'banned' => false
             ]);
             return APIReturn::success();
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -194,7 +198,8 @@ class TeamController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function setAdmin(Request $request){
+    public function setAdmin(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'teamId' => 'required|array'
         ], [
@@ -202,16 +207,15 @@ class TeamController extends Controller
             'teamId.array' => '队伍ID必须为数组'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
-        try{
+        try {
             Team::where('team_id', $request->input('teamId'))->update([
                 'admin' => true
             ]);
             return APIReturn::success();
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -222,7 +226,8 @@ class TeamController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function forceResetPassword(Request $request){
+    public function forceResetPassword(Request $request)
+    {
         $validator = \Validator::make($request->all(), [
             'teamId' => 'required|integer'
         ], [
@@ -230,11 +235,11 @@ class TeamController extends Controller
             'teamId.integer' => '队伍ID必须为整数'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        try{
+        try {
             $newPassword = str_random(32);
             $team = Team::find($request->input('teamId'));
             $team->password = bcrypt(hash('sha256', $newPassword));
@@ -242,8 +247,7 @@ class TeamController extends Controller
             return APIReturn::success([
                 'newPassword' => $newPassword
             ]);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -254,16 +258,16 @@ class TeamController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function getRanking(Request $request){
-        try{
+    public function getRanking(Request $request)
+    {
+        try {
             $result = Team::where('admin', '=', '0')->orderByScore()->take(20)->get();
 
             $result->makeHidden([
                 'email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'flag', 'category_id', 'level_id', 'challenge_id', 'log_id', 'score'
             ]);
             return APIReturn::success($result);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             dump($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
