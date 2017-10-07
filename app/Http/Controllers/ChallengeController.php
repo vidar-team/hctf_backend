@@ -149,18 +149,19 @@ class ChallengeController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function deleteChallenge(Request $request){
+    public function deleteChallenge(Request $request)
+    {
         $validator = Validator::make($request->only('challengeId'), [
             'challengeId' => 'required'
         ], [
             'challengeId.required' => '缺少 Challenge ID 字段'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        try{
+        try {
             // 删除关联的所有 Flag
             $challenge = Challenge::find($request->input('challengeId'));
             $challenge->flags()->delete();
@@ -170,8 +171,7 @@ class ChallengeController extends Controller
             $challenge->delete();
 
             return APIReturn::success();
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -196,13 +196,13 @@ class ChallengeController extends Controller
         }]);
 
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
-        try{
+        try {
             $flag = Flag::where('flag', $request->input('flag'))->first();
 
-            if (!$flag){
+            if (!$flag) {
                 //  Flag 不正确
                 \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
                 return APIReturn::error("wrong_flag", "Flag 不正确", 403);
@@ -213,13 +213,13 @@ class ChallengeController extends Controller
             if (Log::where([
                 'challenge_id' => $flag->challenge_id,
                 'status' => 'correct'
-            ])->first()){
+            ])->first()) {
                 return APIReturn::error("duplicate_submit", "Flag 已经提交过", 403);
             }
 
-            if ($flag->team_id !== 0){
+            if ($flag->team_id !== 0) {
                 // Flag 是限定队伍的
-                if ($flag->team_id !== $team->team_id){
+                if ($flag->team_id !== $team->team_id) {
                     // 提交了其他队伍的 Flag
                     $team->banned = true;
                     $team->save();
@@ -229,7 +229,7 @@ class ChallengeController extends Controller
             }
 
             $ruleValidator = new RuleValidator($team->team_id, $level->rules);
-            if (!$ruleValidator->check($team->logs) || Carbon::now('Asia/Shanghai') < $flag->challenge->release_time || Carbon::now('Asia/Shanghai') < $level->release_time){
+            if (!$ruleValidator->check($team->logs) || Carbon::now('Asia/Shanghai') < $flag->challenge->release_time || Carbon::now('Asia/Shanghai') < $level->release_time) {
                 // 该队伍提交了还未开放的问题的 flag
                 $team->banned = true;
                 $team->save();
@@ -238,8 +238,8 @@ class ChallengeController extends Controller
             }
 
             // 题目完成时间与最小限制比对
-            if (json_decode($flag->challenge->config)->minimumSolveTime !== 0){
-                if ($ruleValidator->secondsAfterOpen() < json_decode($flag->challenge->config)->minimumSolveTime){
+            if (json_decode($flag->challenge->config)->minimumSolveTime !== 0) {
+                if ($ruleValidator->secondsAfterOpen() < json_decode($flag->challenge->config)->minimumSolveTime) {
                     // 做题时间太短
                     $team->banned = true;
                     $team->save();
@@ -265,14 +265,13 @@ class ChallengeController extends Controller
             ])->get();
             $dynamicScore = round($flag->challenge->score / (1 + $challengeLogs->count() / 10), 2);  // TODO: 临时公式
             Log::where("challenge_id", $flag->challenge_id)->update([
-               "score" => $dynamicScore
+                "score" => $dynamicScore
             ]);
             \Logger::info("队伍 " . $team->team_name . ' 提交问题 ' . $flag->challenge->title . ' Flag: ' . $request->input('flag') . ' （正确）');
             return APIReturn::success([
                 "score" => $dynamicScore
             ]);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }

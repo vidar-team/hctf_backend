@@ -60,7 +60,7 @@ class Kernel extends HttpKernel
         'can' => \Illuminate\Auth\Middleware\Authorize::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => ThrottleRequests::class,
-        'jwt.auth' =>  GetUserFromToken::class,
+        'jwt.auth' => GetUserFromToken::class,
         'jwt.refresh' => \Tymon\JWTAuth\Middleware\RefreshToken::class,
         'jwt.auth.mod' => \App\Http\Middleware\VerifyJWTToken::class,
         'AdminCheck' => AdminCheck::class, // 管理员权限检查

@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Validator;
 class LevelController extends Controller
 {
 
-    public function create(Request $request){
+    public function create(Request $request)
+    {
         $validator = Validator::make($request->only(['categoryId', 'levelName', 'releaseTime']), [
             'categoryId' => 'required|integer',
             'levelName' => 'required',
@@ -25,13 +26,13 @@ class LevelController extends Controller
             'releaseTime.date' => '开放时间字段不合法'
         ]);
 
-        if ($validator->fails()){
+        if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        try{
+        try {
             $category = Category::find($request->input('categoryId'));
-            if (!$category){
+            if (!$category) {
                 return APIReturn::error("category_not_found", "分类不存在", 404);
             }
             $newLevel = new Level();
@@ -43,8 +44,7 @@ class LevelController extends Controller
 
             \Logger::info("分类 " . $category->category_name . " 下创建了一个新的 Level: " . $newLevel->level_name);
             return APIReturn::success($newLevel);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return \APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -177,21 +177,20 @@ class LevelController extends Controller
             'levelId.required' => '缺少 Level ID 字段'
         ]);
 
-        try{
+        try {
             $level = Level::find($request->input('levelId'));
 
-            if (!$level){
+            if (!$level) {
                 return APIReturn::error("level_not_found", "Level 不存在", 404);
             }
 
-            if ($level->challenges->count() > 0){
+            if ($level->challenges->count() > 0) {
                 return APIReturn::error("level_not_empty", "Level 下仍有 Challenge", 403);
             }
             \Logger::info("Level (ID:" . $level->level_id . ") 被删除");
             $level->delete();
             return APIReturn::success();
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return \APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }

@@ -16,25 +16,39 @@ class LoggerService
 
         }
     }
-    public function debug($message = ""){
+
+    public function debug($message = "")
+    {
         $this->create("DEBUG", $message);
     }
-    public function info($message = ""){
+
+    public function info($message = "")
+    {
         $this->create("INFO", $message);
     }
-    public function notice($message = ""){
+
+    public function notice($message = "")
+    {
         $this->create("NOTICE", $message);
     }
-    public function error($message = ""){
+
+    public function error($message = "")
+    {
         $this->create("ERROR", $message);
     }
-    public function critical($message = ""){
+
+    public function critical($message = "")
+    {
         $this->create("CRITICAL", $message);
     }
-    public function alert($message = ""){
+
+    public function alert($message = "")
+    {
         $this->create("ALERT", $message);
     }
-    public function emergency($message = ""){
+
+    public function emergency($message = "")
+    {
         $this->create("EMERGENCY", $message);
     }
 

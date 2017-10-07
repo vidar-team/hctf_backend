@@ -13,11 +13,11 @@ class SystemLogController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function list(Request $request){
-        if (!$request->input("startId")){
+    public function list(Request $request)
+    {
+        if (!$request->input("startId")) {
             return \APIReturn::success(SystemLog::orderBy('id', 'desc')->take(50)->get());
-        }
-        else{
+        } else {
             return \APIReturn::success(SystemLog::where('id', '>', $request->input('startId'))->orderBy('id', 'desc')->get());
         }
     }

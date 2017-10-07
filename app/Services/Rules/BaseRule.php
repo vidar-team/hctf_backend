@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Services\Rules;
-interface BaseRule{
+interface BaseRule
+{
     public function check($logs);
 }

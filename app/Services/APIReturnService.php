@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 /**
@@ -23,7 +24,7 @@ class APIReturnService
             "status" => $status,
             "data" => $data
         ];
-        if ($redirect){
+        if ($redirect) {
             $body["redirect"] = $redirect;
         }
         return response()->json($body, $httpCode);

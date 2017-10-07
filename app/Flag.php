@@ -10,11 +10,13 @@ class Flag extends Model
     protected $primaryKey = "flag_id";
     protected $fillable = ['flag', 'team_id'];
 
-    public function level(){
+    public function level()
+    {
         return $this->belongsTo('App\Level', 'level_id', 'level_id');
     }
 
-    public function challenge(){
+    public function challenge()
+    {
         return $this->belongsTo('App\Challenge', 'challenge_id', 'challenge_id');
     }
 }

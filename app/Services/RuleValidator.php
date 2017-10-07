@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Services;
 
 use App\Services\Rules\CategoryPassCount;
@@ -10,22 +11,23 @@ use Illuminate\Support\Facades\Cache;
  * @package App\Services
  * @author Eridanus Sora <sora@sound.moe>
  */
-class RuleValidator {
+class RuleValidator
+{
     private $teamId;
     private $rules;
     private $rulesHash;
 
-    public function __construct($teamId, $rules){
+    public function __construct($teamId, $rules)
+    {
         $this->teamId = $teamId;
         $this->rules = collect($rules);
         $this->rulesHash = md5($this->rules->toJson());
 
         // 实例化规则
-        $this->rules = $this->rules->map(function($rule){
-            if ($rule["type"] === "category"){
+        $this->rules = $this->rules->map(function ($rule) {
+            if ($rule["type"] === "category") {
                 $rule["compare"] = new CategoryPassCount($rule["compare"]["targetId"], $rule["compare"]["compareOperator"], $rule["compare"]["compareTo"]);
-            }
-            else{
+            } else {
                 // TODO
             }
             return $rule;
@@ -39,27 +41,25 @@ class RuleValidator {
      * @return bool
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function check($logs){
+    public function check($logs)
+    {
         $result = true;
-        $this->rules->each(function($rule) use (&$result, $logs) {
-            if (array_key_exists("logicOperator", $rule)){
-                if ($rule["logicOperator"] === "and"){
+        $this->rules->each(function ($rule) use (&$result, $logs) {
+            if (array_key_exists("logicOperator", $rule)) {
+                if ($rule["logicOperator"] === "and") {
                     $result = $result && $rule["compare"]->check($logs);
-                }
-                else if ($rule["logicOperator"] === "or"){
+                } else if ($rule["logicOperator"] === "or") {
                     $result = $result || $rule["compare"]->check($logs);
-                }
-                else{
+                } else {
                     // TODO: Invalid Logic Operator
                 }
-            }
-            else{
+            } else {
                 $result = $rule["compare"]->check($logs);
             }
         });
         // 记录开放时间
-        if ($result === true){
-            if (!Cache::has($this->teamId . '-' . $this->rulesHash)){
+        if ($result === true) {
+            if (!Cache::has($this->teamId . '-' . $this->rulesHash)) {
                 Cache::forever($this->teamId . '-' . $this->rulesHash, Carbon::now('Asia/Shanghai')->toDateTimeString());
             }
         }
@@ -71,11 +71,11 @@ class RuleValidator {
      * @return int
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function secondsAfterOpen(){
-        if (!Cache::has($this->teamId . '-' . $this->rulesHash)){
+    public function secondsAfterOpen()
+    {
+        if (!Cache::has($this->teamId . '-' . $this->rulesHash)) {
             return 0;
-        }
-        else{
+        } else {
             return Carbon::parse(Cache::get($this->teamId . '-' . $this->rulesHash), 'Asia/Shanghai')->diffInSeconds(Carbon::now('Asia/Shanghai'));
         }
     }

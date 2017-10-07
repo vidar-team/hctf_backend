@@ -12,11 +12,13 @@ class Challenge extends Model
         'config' => 'array'
     ];
 
-    public function flags(){
+    public function flags()
+    {
         return $this->hasMany('App\Flag', 'challenge_id', 'challenge_id');
     }
 
-    public function logs(){
+    public function logs()
+    {
         return $this->hasMany('App\Log', 'challenge_id', 'challenge_id');
     }
 }
