@@ -58,6 +58,7 @@ class TeamController extends Controller
                 'password' => bcrypt($input['password']),
                 'signUpTime' => Carbon::now('Asia/Shanghai'),
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
+                'token' => str_random("32")
             ]);
         } catch (\Exception $err) {
             return APIReturn::error("email_or_team_already_exist", "队伍或Email已经存在", 500);
@@ -122,7 +123,7 @@ class TeamController extends Controller
             $result = Team::with(["logs" => function ($query) {
                 $query->where("status", "correct")->orderBy("created_at", "asc");
             }])->whereIn("team_id", $request->input('teamId'))->get();
-            $result->makeHidden(['email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime']);
+            $result->makeHidden(['email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'token']);
             // 隐藏提交的 Flag 内容
             $result->each(function ($team) {
                 $team->logs->each(function ($log) {
@@ -131,7 +132,6 @@ class TeamController extends Controller
             });
             return APIReturn::success($result);
         } catch (\Exception $e) {
-            dd($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -264,7 +264,7 @@ class TeamController extends Controller
             $result = Team::where('admin', '=', '0')->orderByScore()->take(20)->get();
 
             $result->makeHidden([
-                'email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'flag', 'category_id', 'level_id', 'challenge_id', 'log_id', 'score'
+                'email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'flag', 'category_id', 'level_id', 'challenge_id', 'log_id', 'score', 'token'
             ]);
             return APIReturn::success($result);
         } catch (\Exception $e) {

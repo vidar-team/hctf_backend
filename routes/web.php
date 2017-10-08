@@ -59,11 +59,11 @@ Route::group(['prefix' => 'Challenge'], function () {
         Route::post('delete', 'ChallengeController@deleteChallenge');
     });
 
-    Route::group(['middleware' => ['jwt.auth.mod']], function () {
+    Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck']], function () {
         Route::get('list', 'ChallengeController@list');
     });
 
-    Route::group(['middleware' => ['jwt.auth.mod', 'BlockCheck']], function(){
+    Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck', 'BlockCheck']], function(){
        Route::post('submitFlag', 'ChallengeController@submitFlag');
     });
 });

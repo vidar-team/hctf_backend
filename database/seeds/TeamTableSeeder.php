@@ -23,6 +23,7 @@ class TeamTableSeeder extends Seeder
                 'signUpTime' => Carbon::now('Asia/Shanghai'),
                 'admin' => true,
                 'banned' => false,
+                'token' => str_random("32"),
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
             ],
             [
@@ -32,6 +33,7 @@ class TeamTableSeeder extends Seeder
                 'signUpTime' => Carbon::now('Asia/Shanghai'),
                 'admin' => false,
                 'banned' => false,
+                'token' => str_random("32"),
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
             ],
         ];
