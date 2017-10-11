@@ -9,7 +9,8 @@ class Challenge extends Model
     protected $table = "challenges";
     protected $primaryKey = "challenge_id";
     protected $casts = [
-        'config' => 'array'
+        'config' => 'array',
+        'is_dynamic_flag' => 'boolean'
     ];
 
     public function flags()

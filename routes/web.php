@@ -71,3 +71,7 @@ Route::group(['prefix' => 'Challenge'], function () {
 Route::group(['prefix' => 'SystemLog', 'middleware' => ['jwt.auth.mod', 'AdminCheck']], function(){
    Route::get('list', 'SystemLogController@list');
 });
+
+Route::group(['prefix' => 'System'], function(){
+   Route::get('meta', 'SystemController@getMetaInfo');
+});

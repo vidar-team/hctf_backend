@@ -34,7 +34,7 @@ class ChallengeController extends Controller
             'url' => 'required|url',
             'score' => 'required|numeric',
             'levelId' => 'required|integer',
-            'flag' => 'required|array',
+            'flag' => 'array',
             'config' => 'required|json',
             'releaseTime' => 'required|date'
         ], [
@@ -46,7 +46,6 @@ class ChallengeController extends Controller
             'score.numeric' => '基础分数字段不合法',
             'levelId.required' => '缺少 Level ID 字段',
             'levelId.integer' => 'Level ID 字段不合法',
-            'flag.required' => '缺少 Flag 字段',
             'flag.array' => 'Flag 字段不合法',
             'config.required' => '缺少设置字段',
             'config.json' => '设置字段不合法',
@@ -68,6 +67,7 @@ class ChallengeController extends Controller
             $newChallenge->level_id = $request->input('levelId');
             $newChallenge->config = $request->input('config');
             $newChallenge->release_time = $request->input('releaseTime');
+            $newChallenge->is_dynamic_flag = $request->input('isDynamicFlag');
 
             $newChallenge->save();
             $newChallenge->flags()->createMany($request->input('flag'));
@@ -204,8 +204,21 @@ class ChallengeController extends Controller
 
             if (!$flag) {
                 //  Flag 不正确
-                \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
-                return APIReturn::error("wrong_flag", "Flag 不正确", 403);
+                if (strlen($request->input('flag')) === 64){
+                    // 可能是动态 Flag
+                    $dynamicFlagChallenges = Challenge::with("flags")->where("is_dynamic_flag", "=", 1)->get();
+                    foreach ($dynamicFlagChallenges as $c) {
+                        if ($c->flags->count() > 0){
+                            if (hash("sha256", $team->token . $c->flags[0]->flag) === $request->input('flag')){
+                                $flag = $c->flags[0];
+                            }
+                        }
+                    }
+                }
+                if (!$flag){
+                    \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
+                    return APIReturn::error("wrong_flag", "Flag 不正确", 403);
+                }
             }
 
             $level = Level::find($flag->challenge->level_id);
