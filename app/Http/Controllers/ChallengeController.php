@@ -92,20 +92,18 @@ class ChallengeController extends Controller
     public function info(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'required|integer'
+            'challengeId' => 'required|integer'
         ], [
-            'id.required' => '缺少Challenge ID字段',
-            'id.integer' => 'Challenge ID不合法'
+            'challengeId.required' => '缺少Challenge ID字段',
+            'challengeId.integer' => 'Challenge ID不合法'
         ]);
 
         if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
         try {
-            $question = Challenge::find($request->input('id'));
-            return APIReturn::success([
-                'challenge' => $question
-            ]);
+            $challenge = Challenge::find($request->input('challengeId'));
+            return APIReturn::success($challenge);
         } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
@@ -141,6 +139,112 @@ class ChallengeController extends Controller
         });
 
         return APIReturn::success($result);
+    }
+
+    /**
+     * 修改 Challenge 基本信息
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function editChallenge(Request $request)
+    {
+        $validator = Validator::make($request->only(['challengeId', 'title', 'description', 'releaseTime']), [
+            'challengeId' => 'required|integer',
+            'title' => 'required',
+            'description' => 'required',
+            'releaseTime' => 'required|date'
+        ], [
+            'challengeId.required' => '缺少 Challenge ID 字段',
+            'challengeId.integer' => 'Challenge ID 字段不合法',
+            'title.required' => '缺少标题字段',
+            'description' => '缺少描述字段',
+            'releaseTime.required' => '缺少开放时间字段',
+            'releaseTime.date' => '开放时间字段不合法'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try {
+            $challenge = Challenge::find($request->input('challengeId'));
+            if (!$challenge) {
+                return APIReturn::error('challenge_not_found', 'challenge_not_found');
+            }
+
+            $challenge->title = $request->input('title');
+            $challenge->description = $request->input('description');
+            $challenge->release_time = $request->input('releaseTime');
+            $challenge->save();
+
+            return APIReturn::success($challenge);
+        } catch (\Exception $e) {
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
+     * 重设基准分数
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function resetScore(Request $request)
+    {
+        $validator = Validator::make($request->only(['challengeId', 'score']), [
+            'challengeId' => 'required|integer',
+            'score' => 'required|numeric'
+        ], [
+            'challengeId.required' => '缺少 Challenge ID 字段',
+            'challengeId.integer' => 'Challenge ID 字段不合法',
+            'score.required' => '缺少基准分数字段',
+            'score.numeric' => '基准分数字段不合法'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        $score = $request->input('score');
+
+        try {
+            $count = Log::where('challenge_id', $request->input('challengeId'))->count();
+            $dynamicScore = round($score / (1 + $count / 10), 2);  // TODO: 临时公式
+            Log::where("challenge_id", $request->input('challengeId'))->update([
+                "score" => $dynamicScore
+            ]);
+            return APIReturn::success();
+        } catch (\Exception $e) {
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
+     * 获得 Flags 详情
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function getFlagsInfo(Request $request)
+    {
+        $validator = Validator::make($request->only(['challengeId']), [
+            'challengeId' => 'required|integer'
+        ], [
+            'challengeId.required' => '缺少 Challenge ID 字段',
+            'challengeId.integer' => 'Challenge ID 字段不合法'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try {
+            $challenge = Challenge::where('challenge_id', $request->input('challengeId'))->with('flags')->first();
+            return APIReturn::success($challenge->flags);
+        } catch (\Exception $e) {
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
     }
 
     /**
@@ -204,18 +308,18 @@ class ChallengeController extends Controller
 
             if (!$flag) {
                 //  Flag 不正确
-                if (strlen($request->input('flag')) === 64){
+                if (strlen($request->input('flag')) === 64) {
                     // 可能是动态 Flag
                     $dynamicFlagChallenges = Challenge::with("flags")->where("is_dynamic_flag", "=", 1)->get();
                     foreach ($dynamicFlagChallenges as $c) {
-                        if ($c->flags->count() > 0){
-                            if (hash("sha256", $team->token . $c->flags[0]->flag) === $request->input('flag')){
+                        if ($c->flags->count() > 0) {
+                            if (hash("sha256", $team->token . $c->flags[0]->flag) === $request->input('flag')) {
                                 $flag = $c->flags[0];
                             }
                         }
                     }
                 }
-                if (!$flag){
+                if (!$flag) {
                     \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
                     return APIReturn::error("wrong_flag", "Flag 不正确", 403);
                 }
