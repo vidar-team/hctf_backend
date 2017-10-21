@@ -142,49 +142,6 @@ class ChallengeController extends Controller
     }
 
     /**
-     * 修改 Challenge 基本信息
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * @author Eridanus Sora <sora@sound.moe>
-     */
-    public function editChallenge(Request $request)
-    {
-        $validator = Validator::make($request->only(['challengeId', 'title', 'description', 'releaseTime']), [
-            'challengeId' => 'required|integer',
-            'title' => 'required',
-            'description' => 'required',
-            'releaseTime' => 'required|date'
-        ], [
-            'challengeId.required' => '缺少 Challenge ID 字段',
-            'challengeId.integer' => 'Challenge ID 字段不合法',
-            'title.required' => '缺少标题字段',
-            'description' => '缺少描述字段',
-            'releaseTime.required' => '缺少开放时间字段',
-            'releaseTime.date' => '开放时间字段不合法'
-        ]);
-
-        if ($validator->fails()) {
-            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
-        }
-
-        try {
-            $challenge = Challenge::find($request->input('challengeId'));
-            if (!$challenge) {
-                return APIReturn::error('challenge_not_found', 'challenge_not_found');
-            }
-
-            $challenge->title = $request->input('title');
-            $challenge->description = $request->input('description');
-            $challenge->release_time = $request->input('releaseTime');
-            $challenge->save();
-
-            return APIReturn::success($challenge);
-        } catch (\Exception $e) {
-            return APIReturn::error("database_error", "数据库读写错误", 500);
-        }
-    }
-
-    /**
      * 重设基准分数
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -242,6 +199,111 @@ class ChallengeController extends Controller
         try {
             $challenge = Challenge::where('challenge_id', $request->input('challengeId'))->with('flags')->first();
             return APIReturn::success($challenge->flags);
+        } catch (\Exception $e) {
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
+     * 修改 Challenge 基本信息
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function editChallenge(Request $request)
+    {
+        $validator = Validator::make($request->only(['challengeId', 'title', 'description', 'releaseTime']), [
+            'challengeId' => 'required|integer',
+            'title' => 'required',
+            'description' => 'required',
+            'releaseTime' => 'required|date'
+        ], [
+            'challengeId.required' => '缺少 Challenge ID 字段',
+            'challengeId.integer' => 'Challenge ID 字段不合法',
+            'title.required' => '缺少标题字段',
+            'description' => '缺少描述字段',
+            'releaseTime.required' => '缺少开放时间字段',
+            'releaseTime.date' => '开放时间字段不合法'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try {
+            $challenge = Challenge::find($request->input('challengeId'));
+            if (!$challenge) {
+                return APIReturn::error('challenge_not_found', 'challenge_not_found', 404);
+            }
+
+            $challenge->title = $request->input('title');
+            $challenge->description = $request->input('description');
+            $challenge->release_time = $request->input('releaseTime');
+            $challenge->save();
+
+            return APIReturn::success($challenge);
+        } catch (\Exception $e) {
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
+     * 添加 Flag
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function addFlags(Request $request)
+    {
+        $validator = Validator::make($request->only(['challengeId', 'flag']), [
+            'challengeId' => 'required|integer',
+            'flag' => 'required|array'
+        ], [
+            'challengeId.required' => '缺少 Challenge ID 字段',
+            'challengeId.integer' => 'Challenge ID 字段不合法',
+            'flag.required' => '缺少 Flag 字段',
+            'flag.array' => 'Flag 字段不合法'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            $challenge = Challenge::find($request->input('challengeId'));
+            if (!$challenge){
+                return APIReturn::error('challenge_not_found', '不存在的问题', 404);
+            }
+            $challenge->flags()->createMany($request->input('flag'));
+            return APIReturn::success($challenge->flags);
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
+     * 删除所有关联 Flag
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function deleteAllFlags(Request $request)
+    {
+        $validator = Validator::make($request->only(['challengeId']), [
+            'challengeId' => 'required|integer'
+        ], [
+            'challengeId.required' => '缺少 Challenge ID 字段',
+            'challengeId.integer' => 'Challenge ID 字段不合法'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try {
+            Flag::where('challenge_id', $request->input('challengeId'))->delete();
+            return APIReturn::success();
         } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }

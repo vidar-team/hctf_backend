@@ -59,6 +59,8 @@ Route::group(['prefix' => 'Challenge'], function () {
         Route::get('info', 'ChallengeController@info');
         Route::post('edit', 'ChallengeController@editChallenge');
         Route::get('getFlags', 'ChallengeController@getFlagsInfo');
+        Route::post('deleteFlags', 'ChallengeController@deleteAllFlags');
+        Route::post('addFlags', 'ChallengeController@addFlags');
         Route::post('resetScore', 'ChallengeController@resetScore');
         Route::post('delete', 'ChallengeController@deleteChallenge');
     });
@@ -74,6 +76,7 @@ Route::group(['prefix' => 'Challenge'], function () {
 
 Route::group(['prefix' => 'Flag', 'middleware' => ['jwt.auth.mod', 'AdminCheck']], function(){
    Route::post('delete', 'FlagController@deleteFlag');
+   Route::post('edit', 'FlagController@editFlag');
 });
 
 Route::group(['prefix' => 'SystemLog', 'middleware' => ['jwt.auth.mod', 'AdminCheck']], function(){
