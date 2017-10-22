@@ -1,0 +1,20 @@
+{
+  "缺少队伍名字段": "Missing team name",
+  "队伍名过长": "Team name too long.",
+  "缺少 Email 字段": "Missing Email",
+  "Email 字段不合法": "Invalid Email",
+  "Email 过长": "Email too long",
+  "缺少密码字段": "Missing password",
+  "密码字段不合法": "Invalid password",
+  "Email 与密码不匹配": "Unmatched credentials",
+  "无法创建认证Token": "Fail to generate access token",
+  "队伍或Email已经存在": "Duplicated team name or Email",
+
+  "缺少 Flag 字段": "Missing flag",
+  "Flag 不正确": "Incorrect flag",
+  "Flag 已经提交过": "You have already submitted this flag",
+  "队伍已被封禁": "You have been blocked",
+
+
+  "数据库读写错误": "Database error"
+}

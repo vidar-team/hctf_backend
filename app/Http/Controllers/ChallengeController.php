@@ -353,7 +353,7 @@ class ChallengeController extends Controller
         $validator = Validator::make($request->only('flag'), [
             'flag' => 'required'
         ], [
-            'flag.required' => '缺少 Flag 字段'
+            'flag.required' => __('缺少 Flag 字段')
         ]);
 
         $team = JWTAuth::parseToken()->toUser();
@@ -383,7 +383,7 @@ class ChallengeController extends Controller
                 }
                 if (!$flag) {
                     \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
-                    return APIReturn::error("wrong_flag", "Flag 不正确", 403);
+                    return APIReturn::error("wrong_flag", __("Flag 不正确"), 403);
                 }
             }
 
@@ -393,7 +393,7 @@ class ChallengeController extends Controller
                 'challenge_id' => $flag->challenge_id,
                 'status' => 'correct'
             ])->first()) {
-                return APIReturn::error("duplicate_submit", "Flag 已经提交过", 403);
+                return APIReturn::error("duplicate_submit", __("Flag 已经提交过"), 403);
             }
 
             if ($flag->team_id !== 0) {
@@ -403,7 +403,7 @@ class ChallengeController extends Controller
                     $team->banned = true;
                     $team->save();
                     \Logger::info("队伍 " . $team->team_name . ' 由于提交其他队伍的 Flag 被系统自动封禁');
-                    return APIReturn::error("banned", "队伍已被封禁", 403);
+                    return APIReturn::error("banned", __("队伍已被封禁"), 403);
                 }
             }
 
@@ -413,7 +413,7 @@ class ChallengeController extends Controller
                 $team->banned = true;
                 $team->save();
                 \Logger::info("队伍 " . $team->team_name . ' 由于提交未开放任务的 Flag 被系统自动封禁');
-                return APIReturn::error("banned", "队伍已被封禁", 403);
+                return APIReturn::error("banned", __("队伍已被封禁"), 403);
             }
 
             // 题目完成时间与最小限制比对
@@ -423,7 +423,7 @@ class ChallengeController extends Controller
                     $team->banned = true;
                     $team->save();
                     \Logger::info("队伍 " . $team->team_name . ' 由于开放问题到提交正确 Flag 的时间间隔小于阈值被系统自动封禁');
-                    return APIReturn::error("banned", "队伍已被封禁", 403);
+                    return APIReturn::error("banned", __("队伍已被封禁"), 403);
                 }
             }
 
@@ -451,7 +451,7 @@ class ChallengeController extends Controller
                 "score" => $dynamicScore
             ]);
         } catch (\Exception $e) {
-            return APIReturn::error("database_error", "数据库读写错误", 500);
+            return APIReturn::error("database_error", __("数据库读写错误"), 500);
         }
     }
 }

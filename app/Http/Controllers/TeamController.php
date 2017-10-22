@@ -34,10 +34,10 @@ class TeamController extends Controller
             'email' => 'required|email',
             'password' => 'required|size:64'
         ], [
-            'email.required' => '缺少 Email 字段',
-            'email.email' => 'Email 字段不合法',
-            'password.required' => '缺少密码字段',
-            'password.size' => '密码字段不合法'
+            'email.required' => __('缺少 Email 字段'),
+            'email.email' => __('Email 字段不合法'),
+            'password.required' => __('缺少密码字段'),
+            'password.size' => __('密码字段不合法')
         ]);
 
         if ($validator->fails()) {
@@ -48,10 +48,10 @@ class TeamController extends Controller
 
         try {
             if (!$access_token = JWTAuth::attempt($credentials)) {
-                return APIReturn::error("invalid_email_or_password", "Email 与密码不匹配", 401);
+                return APIReturn::error("invalid_email_or_password", __("Email 与密码不匹配"), 401);
             }
         } catch (JWTAuthException $err) {
-            return APIReturn::error("failed_to_create_token", "无法创建认证Token", 500);
+            return APIReturn::error("failed_to_create_token", __("无法创建认证Token"), 500);
         }
 
         return APIReturn::success(['access_token' => $access_token]);
@@ -72,13 +72,13 @@ class TeamController extends Controller
             'email' => 'required|email|max:32',
             'password' => 'required|size:64'
         ], [
-            'teamName.required' => '缺少队伍名字段',
-            'teamName.max' => '队伍名过长',
-            'email.require' => '缺少 Email 字段',
-            'email.email' => 'Email 字段不合法',
-            'email.max' => 'Email 过长',
-            'password.required' => '缺少密码字段',
-            'password.size' => '密码字段不合法'
+            'teamName.required' => __('缺少队伍名字段'),
+            'teamName.max' => __('队伍名过长'),
+            'email.require' => __('缺少 Email 字段'),
+            'email.email' => __('Email 字段不合法'),
+            'email.max' => __('Email 过长'),
+            'password.required' => __('缺少密码字段'),
+            'password.size' => __('密码字段不合法')
         ]);
 
         if ($validator->fails()) {
@@ -95,7 +95,7 @@ class TeamController extends Controller
                 'token' => str_random("32")
             ]);
         } catch (\Exception $err) {
-            return APIReturn::error("email_or_team_already_exist", "队伍或Email已经存在", 500);
+            return APIReturn::error("email_or_team_already_exist", __("队伍或Email已经存在"), 500);
         }
 
         return APIReturn::success([

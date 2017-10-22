@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\AdminCheck;
 use App\Http\Middleware\BlockCheck;
+use App\Http\Middleware\I18n;
 use App\Http\Middleware\ThrottleRequests;
 use App\Http\Middleware\TimeCheck;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -23,6 +24,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\I18n::class
     ];
 
     /**
