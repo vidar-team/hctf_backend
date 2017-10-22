@@ -29,6 +29,21 @@ class TeamController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
+
+        $validator = \Validator::make($credentials, [
+            'email' => 'required|email',
+            'password' => 'required|size:64'
+        ], [
+            'email.required' => '缺少 Email 字段',
+            'email.email' => 'Email 字段不合法',
+            'password.required' => '缺少密码字段',
+            'password.size' => '密码字段不合法'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
         $access_token = null;
 
         try {
@@ -51,6 +66,25 @@ class TeamController extends Controller
     public function register(Request $request)
     {
         $input = $request->only('teamName', 'email', 'password');
+
+        $validator = \Validator::make($input, [
+            'teamName' => 'required|max:10',
+            'email' => 'required|email|max:32',
+            'password' => 'required|size:64'
+        ], [
+            'teamName.required' => '缺少队伍名字段',
+            'teamName.max' => '队伍名过长',
+            'email.require' => '缺少 Email 字段',
+            'email.email' => 'Email 字段不合法',
+            'email.max' => 'Email 过长',
+            'password.required' => '缺少密码字段',
+            'password.size' => '密码字段不合法'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
         try {
             $team = $this->team->create([
                 'team_name' => $input['teamName'],
@@ -266,6 +300,11 @@ class TeamController extends Controller
             $result->makeHidden([
                 'email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'flag', 'category_id', 'level_id', 'challenge_id', 'log_id', 'score', 'token'
             ]);
+
+            $result = $result->filter(function($team){
+               return $team->dynamic_total_score != 0;
+            });
+
             return APIReturn::success($result);
         } catch (\Exception $e) {
             dump($e);
