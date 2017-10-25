@@ -5,7 +5,7 @@ return [
      * 开始比赛的时间
      * Time to start the game
      */
-    "startTime" => "2017-04-11T08:00:00+08:00",
+    "startTime" => "2017-11-11T08:00:00+08:00",
     /**
      * 结束比赛的时间
      * Time to end the game
