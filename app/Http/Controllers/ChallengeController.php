@@ -11,6 +11,7 @@ use App\Log;
 use App\Services\RuleValidator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use JWTAuth;
 use Validator;
@@ -367,15 +368,17 @@ class ChallengeController extends Controller
         }
         try {
             $flag = Flag::where('flag', $request->input('flag'))->first();
+            $flagPrefix = \Config::get("ctf.flagPrefix");
+            $flagSuffix = \Config::get("ctf.flagSuffix");
 
             if (!$flag) {
                 //  Flag 不正确
-                if (strlen($request->input('flag')) === 64) {
-                    // 可能是动态 Flag
+                if (strlen($request->input('flag')) === 64 + strlen($flagPrefix) + strlen($flagSuffix)) {
+                    // SHA256 长度为 64 位 / 可能是动态 Flag
                     $dynamicFlagChallenges = Challenge::with("flags")->where("is_dynamic_flag", "=", 1)->get();
                     foreach ($dynamicFlagChallenges as $c) {
                         if ($c->flags->count() > 0) {
-                            if (hash("sha256", $team->token . $c->flags[0]->flag) === $request->input('flag')) {
+                            if ($flagPrefix . hash("sha256", $team->token . $c->flags[0]->flag) . $flagSuffix === $request->input('flag')) {
                                 $flag = $c->flags[0];
                             }
                         }

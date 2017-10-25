@@ -177,6 +177,10 @@ class LevelController extends Controller
             'levelId.required' => '缺少 Level ID 字段'
         ]);
 
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
         try {
             $level = Level::find($request->input('levelId'));
 

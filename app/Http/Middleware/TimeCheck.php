@@ -12,8 +12,8 @@ use Closure;
  */
 class TimeCheck {
     public function handle($request, Closure $next){
-        $start = Carbon::parse(env("HCTF_START_TIME"));
-        $end = Carbon::parse(env("HCTF_END_TIME"));
+        $start = Carbon::parse(\Config::get("ctf.startTime"));
+        $end = Carbon::parse(\Config::get("ctf.endTime"));
         $now = Carbon::now("Asia/Shanghai");
         if ($now->lt($start) || $now->gt($end)){
             return \APIReturn::error("under_maintenance", [

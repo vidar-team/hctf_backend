@@ -18,7 +18,7 @@ class IndexController extends Controller
     {
         $title = 'hctf';
         return APIReturn::success([
-            'hello' => 'hctf'
+            'hello' => "hctf"
         ]);
     }
 }
