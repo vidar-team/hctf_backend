@@ -85,4 +85,7 @@ Route::group(['prefix' => 'SystemLog', 'middleware' => ['jwt.auth.mod', 'AdminCh
 
 Route::group(['prefix' => 'System'], function(){
    Route::get('meta', 'SystemController@getMetaInfo');
+   Route::group(['middleware' => ['jwt.auth.mod', 'AdminCheck']], function(){
+      Route::post('edit', 'SystemController@editMetaInfo');
+   });
 });

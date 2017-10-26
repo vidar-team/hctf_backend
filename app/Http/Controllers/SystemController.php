@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use APIReturn;
 use Carbon\Carbon;
-use Config;
 use Illuminate\Http\Request;
 
 class SystemController extends Controller
@@ -17,14 +16,21 @@ class SystemController extends Controller
      */
     public function getMetaInfo(Request $request)
     {
-        return \APIReturn::success([
-            "startTime" => Carbon::parse(Config::get("ctf.startTime"))->toIso8601String(),
-            "endTime" => Carbon::parse(Config::get("ctf.endTime"))->toIso8601String(),
-            "flagPrefix" => Config::get("ctf.flagPrefix"),
-            "flagSuffix" => Config::get("ctf.flagSuffix")
+        $config = collect(\DB::table("config")->get())->pluck('value', 'key');
+        return APIReturn::success([
+            'startTime' => Carbon::parse($config['start_time'], 'UTC')->toIso8601String(),
+            'endTime' => Carbon::parse($config['end_time'], 'UTC')->toIso8601String(),
+            'flagPrefix' => $config['flag_prefix'],
+            'flagSuffix' => $config['flag_suffix']
         ]);
     }
 
+    /**
+     * 编辑系统设置
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
     public function editMetaInfo(Request $request){
         $validator = \Validator::make($request->only(['startTime', 'endTime', 'flagPrefix', 'flagSuffix']), [
            'startTime' => 'required|date',
@@ -37,7 +43,24 @@ class SystemController extends Controller
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        Config::set('ctf.startTime', $request->input('startTime'));
-        Config::set('ctf.endTime', $request->input('endTime'));
+        try{
+            \DB::table("config")->where('key', '=', 'start_time')->update([
+                'value' => Carbon::parse($request->input('startTime'))->setTimezone('UTC')->toDateTimeString()
+            ]);
+            \DB::table("config")->where('key', '=', 'end_time')->update([
+                'value' => Carbon::parse($request->input('endTime'))->setTimezone('UTC')->toDateTimeString()
+            ]);
+            \DB::table("config")->where('key', '=', 'flag_prefix')->update([
+                'value' => $request->input('flagPrefix')
+            ]);
+            \DB::table("config")->where('key', '=', 'flag_suffix')->update([
+                'value' => $request->input('flagSuffix')
+            ]);
+        }
+        catch (\Exception $e){
+            return \APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+
+        return APIReturn::success();
     }
 }

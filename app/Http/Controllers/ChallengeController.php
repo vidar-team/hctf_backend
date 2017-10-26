@@ -125,21 +125,33 @@ class ChallengeController extends Controller
         $categories = Category::with(["levels", 'challenges'])->get();
         $validLevels = collect([]);
         $result = collect([]);
-        $categories->each(function ($category) use ($validLevels, $team) {
-            collect($category->levels)->each(function ($level) use ($validLevels, $team) {
-                if ((new RuleValidator($team->team_id, $level->rules))->check($team->logs) && Carbon::now()->gt(Carbon::parse($level->release_time))) {
-                    $validLevels->push($level->level_id);
-                }
+        try{
+            $categories->each(function ($category) use ($validLevels, $team) {
+                collect($category->levels)->each(function ($level) use ($validLevels, $team) {
+                    if ((new RuleValidator($team->team_id, $level->rules))->check($team->logs) && Carbon::now()->gt(Carbon::parse($level->release_time))) {
+                        $validLevels->push($level->level_id);
+                    }
+                });
             });
-        });
 
-        $categories->each(function ($category) use ($validLevels, $result) {
-            $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
-                return $validLevels->contains($challenge->level_id) && Carbon::now()->gt(Carbon::parse($challenge->release_time));
-            })->groupBy('level_id');
-        });
+            $categories->each(function ($category) use ($validLevels, $result) {
+                $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
+                    return $validLevels->contains($challenge->level_id) && Carbon::now()->gt(Carbon::parse($challenge->release_time));
+                })->groupBy('level_id');
+            });
 
-        return APIReturn::success($result);
+            $placeholders = [
+                'teamId' => hash('sha256', ((string)$team->team_id) . 'Nanjolno')
+            ];
+        }
+        catch (\Exception $e){
+            dump($e);
+        }
+
+        return APIReturn::success([
+            'placeholders' => $placeholders,
+            'challenges' => $result
+        ]);
     }
 
     /**
@@ -368,8 +380,9 @@ class ChallengeController extends Controller
         }
         try {
             $flag = Flag::where('flag', $request->input('flag'))->first();
-            $flagPrefix = \Config::get("ctf.flagPrefix");
-            $flagSuffix = \Config::get("ctf.flagSuffix");
+            $config = collect(\DB::table("config")->get())->pluck('value', 'key');
+            $flagPrefix = $config["flag_prefix"];
+            $flagSuffix = $config["flag_suffix"];
 
             if (!$flag) {
                 //  Flag 不正确

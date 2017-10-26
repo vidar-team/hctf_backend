@@ -38,7 +38,7 @@ class LevelController extends Controller
             $newLevel = new Level();
             $newLevel->level_name = $request->input('levelName');
             $newLevel->release_time = Carbon::parse($request->input('releaseTime'))->setTimezone('UTC')->toDateTimeString();
-            $newLevel->rules = '[]';
+            $newLevel->rules = [];
 
             $category->levels()->save($newLevel);
 

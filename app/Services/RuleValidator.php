@@ -60,7 +60,7 @@ class RuleValidator
         // 记录开放时间
         if ($result === true) {
             if (!Cache::has($this->teamId . '-' . $this->rulesHash)) {
-                Cache::forever($this->teamId . '-' . $this->rulesHash, Carbon::now('Asia/Shanghai')->toDateTimeString());
+                Cache::forever($this->teamId . '-' . $this->rulesHash, Carbon::now()->toIso8601String());
             }
         }
         return $result;
@@ -76,7 +76,7 @@ class RuleValidator
         if (!Cache::has($this->teamId . '-' . $this->rulesHash)) {
             return 0;
         } else {
-            return Carbon::parse(Cache::get($this->teamId . '-' . $this->rulesHash), 'Asia/Shanghai')->diffInSeconds(Carbon::now('Asia/Shanghai'));
+            return Carbon::parse(Cache::get($this->teamId . '-' . $this->rulesHash))->diffInSeconds(Carbon::now());
         }
     }
 }
