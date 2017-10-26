@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
 class Challenge extends Model
@@ -12,6 +13,10 @@ class Challenge extends Model
         'config' => 'array',
         'is_dynamic_flag' => 'boolean'
     ];
+
+    public function getReleaseTimeAttribute($value){
+        return Carbon::parse($value, 'UTC')->toIso8601String();
+    }
 
     public function flags()
     {

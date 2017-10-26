@@ -67,7 +67,7 @@ class ChallengeController extends Controller
             $newChallenge->score = $request->input('score');
             $newChallenge->level_id = $request->input('levelId');
             $newChallenge->config = $request->input('config');
-            $newChallenge->release_time = $request->input('releaseTime');
+            $newChallenge->release_time =  Carbon::parse($request->input('releaseTime'))->setTimezone('UTC')->toDateTimeString();
             $newChallenge->is_dynamic_flag = $request->input('isDynamicFlag');
 
             $newChallenge->save();
@@ -127,7 +127,7 @@ class ChallengeController extends Controller
         $result = collect([]);
         $categories->each(function ($category) use ($validLevels, $team) {
             collect($category->levels)->each(function ($level) use ($validLevels, $team) {
-                if ((new RuleValidator($team->team_id, $level->rules))->check($team->logs)) {
+                if ((new RuleValidator($team->team_id, $level->rules))->check($team->logs) && Carbon::now()->gt(Carbon::parse($level->release_time))) {
                     $validLevels->push($level->level_id);
                 }
             });
@@ -135,7 +135,7 @@ class ChallengeController extends Controller
 
         $categories->each(function ($category) use ($validLevels, $result) {
             $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
-                return $validLevels->contains($challenge->level_id);
+                return $validLevels->contains($challenge->level_id) && Carbon::now()->gt(Carbon::parse($challenge->release_time));
             })->groupBy('level_id');
         });
 
@@ -239,7 +239,7 @@ class ChallengeController extends Controller
 
             $challenge->title = $request->input('title');
             $challenge->description = $request->input('description');
-            $challenge->release_time = $request->input('releaseTime');
+            $challenge->release_time =  Carbon::parse($request->input('releaseTime'))->setTimezone('UTC')->toDateTimeString();
             $challenge->save();
 
             return APIReturn::success($challenge);
@@ -411,7 +411,7 @@ class ChallengeController extends Controller
             }
 
             $ruleValidator = new RuleValidator($team->team_id, $level->rules);
-            if (!$ruleValidator->check($team->logs) || Carbon::now('Asia/Shanghai') < $flag->challenge->release_time || Carbon::now('Asia/Shanghai') < $level->release_time) {
+            if (!$ruleValidator->check($team->logs) || Carbon::now()->lt(Carbon::parse($flag->challenge->release_time)) || Carbon::now()->lt(Carbon::parse($level->release_time))) {
                 // 该队伍提交了还未开放的问题的 flag
                 $team->banned = true;
                 $team->save();

@@ -16,6 +16,7 @@ class IndexController extends Controller
 {
     public function index(Request $request)
     {
+        Carbon::now()->toDateTimeString();
         $title = 'hctf';
         return APIReturn::success([
             'hello' => "hctf"

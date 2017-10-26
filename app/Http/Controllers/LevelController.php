@@ -37,7 +37,7 @@ class LevelController extends Controller
             }
             $newLevel = new Level();
             $newLevel->level_name = $request->input('levelName');
-            $newLevel->release_time = $request->input('releaseTime');
+            $newLevel->release_time = Carbon::parse($request->input('releaseTime'))->setTimezone('UTC')->toDateTimeString();
             $newLevel->rules = '[]';
 
             $category->levels()->save($newLevel);
@@ -61,6 +61,7 @@ class LevelController extends Controller
             $levelInfo = Level::where('level_id', $request->input('levelId'))->with('challenges')->first();
             return \APIReturn::success($levelInfo);
         } catch (\Exception $e) {
+            dump($e);
             return \APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -121,7 +122,7 @@ class LevelController extends Controller
 
         try {
             $level = Level::find($request->input('levelId'));
-            $level->release_time = $request->input('releaseTime');
+            $level->release_time = Carbon::parse($request->input('releaseTime'))->setTimezone('UTC')->toDateTimeString();
             $level->save();
             \Logger::info("Level (ID:" . $level->level_id . ")的开放时间被修改为" . $level->release_time);
             return \APIReturn::success($level);
