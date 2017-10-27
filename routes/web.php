@@ -27,6 +27,7 @@ Route::group(['prefix' => 'User'], function () {
 
     Route::group(['middleware' => ['jwt.auth.mod', 'AdminCheck']], function () {
         Route::get('list', 'TeamController@listTeams');
+        Route::get('search', 'TeamController@search');
         Route::post('ban', 'TeamController@banTeam');
         Route::post('unban', 'TeamController@unbanTeam');
         Route::post('setAdmin', 'TeamController@setAdmin');

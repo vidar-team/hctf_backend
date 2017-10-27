@@ -170,6 +170,28 @@ class TeamController extends Controller
         }
     }
 
+    public function search(Request $request)
+    {
+        $validator = \Validator::make($request->only('keyword'), [
+            'keyword' => 'required'
+        ], [
+            'keyword.required' => '缺少关键词字段'
+        ]);
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            $keyword = $request->input('keyword');
+            $teams = Team::where('team_name', 'like', "%$keyword%")->get();
+            return APIReturn::success($teams);
+        }
+        catch (\Exception $e){
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
     /**
      * 封禁队伍
      * @param Request $request
@@ -188,6 +210,7 @@ class TeamController extends Controller
         if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
+
         try {
             Team::where('team_id', $request->input('teamId'))->update([
                 'banned' => true
@@ -301,8 +324,8 @@ class TeamController extends Controller
                 'email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'flag', 'category_id', 'level_id', 'challenge_id', 'log_id', 'score', 'token'
             ]);
 
-            $result = $result->filter(function($team){
-               return $team->dynamic_total_score != 0;
+            $result = $result->filter(function ($team) {
+                return $team->dynamic_total_score != 0;
             });
 
             return APIReturn::success($result);
