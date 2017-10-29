@@ -16,5 +16,6 @@
   "队伍已被封禁": "You have been blocked",
 
 
-  "数据库读写错误": "Database error"
+  "数据库读写错误": "Database error",
+  "操作过于频繁": "Too many requests. Please try again later."
 }

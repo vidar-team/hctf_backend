@@ -13,12 +13,15 @@
 
 Route::get('/', 'IndexController@index');
 Route::group(['prefix' => 'User'], function () {
-    Route::group(['middleware' => 'throttle:60,1'], function(){
+    Route::group(['middleware' => 'throttle:5'], function(){
         Route::post('login', 'TeamController@login');
         //Route::post('register', 'TeamController@register');
     });
-    Route::get('select', 'TeamController@publicListTeams');
-    Route::get('ranking', 'TeamController@getRanking');
+
+    Route::group(['middleware' => 'throttle:6'], function(){
+        Route::get('select', 'TeamController@publicListTeams');
+        Route::get('ranking', 'TeamController@getRanking');
+    });
 
     Route::group(['middleware' => 'jwt.auth.mod'], function () {
         Route::get('info', 'TeamController@getAuthInfo')->middleware(['jwt.refresh']);
@@ -66,11 +69,11 @@ Route::group(['prefix' => 'Challenge'], function () {
         Route::post('delete', 'ChallengeController@deleteChallenge');
     });
 
-    Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck']], function () {
+    Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck', 'throttle:6']], function () {
         Route::get('list', 'ChallengeController@list');
     });
 
-    Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck', 'BlockCheck']], function(){
+    Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck', 'BlockCheck', 'throttle:6']], function(){
        Route::post('submitFlag', 'ChallengeController@submitFlag');
     });
 });
