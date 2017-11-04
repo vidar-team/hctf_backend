@@ -18,7 +18,7 @@ Route::group(['prefix' => 'User'], function () {
         //Route::post('register', 'TeamController@register');
     });
 
-    Route::group(['middleware' => 'throttle:6'], function(){
+    Route::group(['middleware' => 'throttle:20'], function(){
         Route::get('select', 'TeamController@publicListTeams');
         Route::get('ranking', 'TeamController@getRanking');
     });
