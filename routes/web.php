@@ -10,7 +10,7 @@
 | contains the 'web' middleware group. Now create something great!
 |
 */
-Route::group(['prefix' => 'User'], function () {
+Route::group(['prefix' => 'API'], function () {
     Route::get('/', 'IndexController@index');
     Route::group(['prefix' => 'User'], function () {
         Route::group(['middleware' => 'throttle:5'], function(){
