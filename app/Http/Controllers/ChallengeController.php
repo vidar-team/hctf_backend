@@ -412,6 +412,7 @@ class ChallengeController extends Controller
 
             if (Log::where([
                 'challenge_id' => $flag->challenge_id,
+                'team_id' => $team->team_id,
                 'status' => 'correct'
             ])->first()) {
                 return APIReturn::error("duplicate_submit", __("Flag 已经提交过"), 403);
