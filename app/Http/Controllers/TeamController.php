@@ -86,14 +86,30 @@ class TeamController extends Controller
         }
 
         try {
-            $team = $this->team->create([
-                'team_name' => $input['teamName'],
-                'email' => $input['email'],
-                'password' => bcrypt($input['password']),
-                'signUpTime' => Carbon::now('Asia/Shanghai'),
-                'lastLoginTime' => Carbon::now('Asia/Shanghai'),
-                'token' => str_random("32"),
-            ]);
+//            $team = $this->team->create([
+//                'team_name' => $input['teamName'],
+//                'email' => $input['email'],
+//                'password' => bcrypt($input['password']),
+//                'signUpTime' => Carbon::now('Asia/Shanghai'),
+//                'lastLoginTime' => Carbon::now('Asia/Shanghai'),
+//                'token' => str_random("32"),
+//            ])->toSql();
+
+            $team = [
+                [
+                    'team_name' => $input['teamName'],
+                    'email' => $input['email'],
+                    'password' => bcrypt($input['password']),
+                    'signUpTime' => Carbon::now('Asia/Shanghai'),
+                    'admin' => false,
+                    'banned' => false,
+                    'token' => str_random("32"),
+                    'lastLoginTime' => Carbon::now('Asia/Shanghai')
+                ]
+            ];
+
+            DB::table('teams')->insert($team);
+
         } catch (\Exception $err) {
             return APIReturn::error("email_or_team_already_exist", __("队伍或Email已经存在"), 500);
         }
