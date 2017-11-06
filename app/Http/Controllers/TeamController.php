@@ -336,4 +336,15 @@ class TeamController extends Controller
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
+
+    public function tokenVerify(Request $request)
+    {
+        $token = $request->route('token');
+        try {
+            $team = Team::where('token', $token)->firstOrFail();
+            return APIReturn::success($team->team_name);
+        } catch (\Exception $e) {
+            return APIReturn::error("", "",404);
+        }
+    }
 }

@@ -16,6 +16,7 @@ Route::group(['prefix' => 'API'], function () {
         //Route::group(['middleware' => 'throttle:120'], function(){
             Route::post('login', 'TeamController@login');
             Route::post('register', 'TeamController@register');
+            Route::get('token', 'TeamController@tokenVerify');
         //});
 
         //Route::group(['middleware' => 'throttle:100'], function(){
