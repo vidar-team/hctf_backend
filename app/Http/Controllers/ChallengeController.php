@@ -155,7 +155,8 @@ class ChallengeController extends Controller
 
         return APIReturn::success([
             'placeholders' => $placeholders,
-            'challenges' => $result
+            'challenges' => $result,
+            'solvedChallenges' => $team->logs
         ]);
     }
 
