@@ -92,7 +92,7 @@ class TeamController extends Controller
                 'password' => bcrypt($input['password']),
                 'signUpTime' => Carbon::now('Asia/Shanghai'),
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
-                'token' => str_random("32")
+                'token' => str_random(32)
             ]);
         } catch (\Exception $err) {
             return APIReturn::error("email_or_team_already_exist", __("队伍或Email已经存在"), 500);
