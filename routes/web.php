@@ -95,3 +95,5 @@ Route::group(['prefix' => 'API'], function () {
        });
     });
 });
+
+Route::get('token/{token}', 'TeamController@tokenVerify');
