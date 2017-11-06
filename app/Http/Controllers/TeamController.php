@@ -68,7 +68,7 @@ class TeamController extends Controller
         $input = $request->only('teamName', 'email', 'password');
 
         $validator = \Validator::make($input, [
-            'teamName' => 'required|max:10',
+            'teamName' => 'required|max:30',
             'email' => 'required|email|max:32',
             'password' => 'required|size:64'
         ], [
@@ -92,7 +92,7 @@ class TeamController extends Controller
                 'password' => bcrypt($input['password']),
                 'signUpTime' => Carbon::now('Asia/Shanghai'),
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
-                'token' => str_random(32)
+                'token' => str_random("32"),
             ]);
         } catch (\Exception $err) {
             return APIReturn::error("email_or_team_already_exist", __("队伍或Email已经存在"), 500);
@@ -298,7 +298,7 @@ class TeamController extends Controller
         }
 
         try {
-            $newPassword = str_random(32);
+            $newPassword = str_random("32");
             $team = Team::find($request->input('teamId'));
             $team->password = bcrypt(hash('sha256', $newPassword));
             $team->save();
