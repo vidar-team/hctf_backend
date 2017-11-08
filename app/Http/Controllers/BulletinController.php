@@ -73,15 +73,14 @@ class BulletinController extends Controller
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        try{
+        try {
             $bulletin = Bulletin::find($request->input('bulletinId'));
-            if (!$bulletin){
+            if (!$bulletin) {
                 return APIReturn::error("bulletin_not_found", "该公告不存在", 404);
             }
             $bulletin->delete();
             return APIReturn::success();
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -92,28 +91,28 @@ class BulletinController extends Controller
      * @return \Illuminate\Http\JsonResponse
      * @author Eridanus Sora <sora@sound.moe>
      */
-    public function edit(Request $request){
+    public function edit(Request $request)
+    {
         $validator = \Validator::make($request->only(['bulletinId', 'title', 'content']), [
-           'bulletinId' => 'required',
-           'title' => 'required',
-           'content' => 'required'
+            'bulletinId' => 'required',
+            'title' => 'required',
+            'content' => 'required'
         ]);
 
         if ($validator->fails()) {
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        try{
+        try {
             $bulletin = Bulletin::find($request->input('bulletinId'));
-            if (!$bulletin){
+            if (!$bulletin) {
                 return APIReturn::error("bulletin_not_found", "该公告不存在", 404);
             }
             $bulletin->title = $request->input('title');
             $bulletin->content = $request->input('content');
             $bulletin->save();
             return APIReturn::success($bulletin);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }

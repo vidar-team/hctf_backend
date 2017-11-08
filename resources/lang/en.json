@@ -17,5 +17,7 @@
 
 
   "数据库读写错误": "Database error",
-  "操作过于频繁": "Too many requests. Please try again later."
+  "操作过于频繁": "Too many requests. Please try again later.",
+  "缺少 题目ID 字段": "Missing Challenge ID",
+  "问题不存在": "Challenge not found"
 }

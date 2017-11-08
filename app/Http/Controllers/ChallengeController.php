@@ -198,6 +198,58 @@ class ChallengeController extends Controller
     }
 
     /**
+     * 查询已经完成题目的队伍
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function getSolvedTeams(Request $request){
+        $validator = Validator::make($request->only(['challengeId']), [
+           'challengeId' => 'required'
+        ], [
+            'challengeId.required' => __('缺少 题目ID 字段')
+        ]);
+
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            $team = JWTAuth::parseToken()->toUser();
+            $team->load(['logs' => function ($query) {
+                $query->where('status', 'correct');
+            }]);
+            $challenge = Challenge::where('challenge_id',$request->input('challengeId'))->with("level")->first();
+            if ($challenge->count() == 0){
+                return APIReturn::error("challenge_not_found", __("问题不存在"), 404);
+            }
+            $logs = Log::where([
+                ["challenge_id", '=', $request->input("challengeId")],
+                ["status", "=", "correct"]
+            ])->with(['team'])->orderBy("created_at")->get();
+            $ruleValidator = new RuleValidator($team->team_id, $challenge->level->rules);
+            if (!$ruleValidator->check($team->logs)){
+                // 题目未开放
+                return APIReturn::error("challenge_not_found", __("问题不存在"), 404);
+            }
+            $result = [];
+
+            $logs->each(function($log) use(&$result){
+               array_push($result, [
+                  'teamName' => $log->team->team_name,
+                  'solvedAt' => Carbon::parse($log->created_at)->toIso8601String()
+               ]);
+            });
+            return APIReturn::success($result);
+        }
+        catch (\Exception $e){
+            dump($e);
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
      * 获得 Flags 详情
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
