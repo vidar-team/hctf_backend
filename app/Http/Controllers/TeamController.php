@@ -322,8 +322,9 @@ class TeamController extends Controller
      */
     public function getRanking(Request $request)
     {
+        $page = $request->input('page') ?? '1';
         try {
-            $result = Team::where('admin', '=', '0')->orderByScore()->take(20)->get();
+            $result = Team::where('admin', '=', '0')->orderByScore()->skip(($page - 1) * 20)->take(20)->get();
 
             $result->makeHidden([
                 'email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'flag', 'category_id', 'level_id', 'challenge_id', 'log_id', 'score', 'token'

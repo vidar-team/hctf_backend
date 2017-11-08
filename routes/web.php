@@ -94,6 +94,16 @@ Route::group(['prefix' => 'API'], function () {
           Route::post('edit', 'SystemController@editMetaInfo');
        });
     });
+
+    Route::group(['prefix' => 'Bulletin'], function(){
+        Route::get('list', 'BulletinController@list');
+
+        Route::group(['middleware' =>  ['jwt.auth.mod', 'AdminCheck']], function(){
+           Route::post('delete', 'BulletinController@delete');
+           Route::post('create', 'BulletinController@create');
+           Route::post('edit', 'BulletinController@edit');
+        });
+    });
 });
 
 Route::get('token/{token}', 'TeamController@tokenVerify');
