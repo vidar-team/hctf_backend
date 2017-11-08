@@ -110,6 +110,9 @@ class TeamController extends Controller
         $team->load('logs');
         $team->lastLoginTime = Carbon::now('Asia/Shanghai');
         $team->save();
+        $team->ranking = Team::orderByScore()->get()->search(function($t) use ($team){
+            return $t->team_id == $team->team_id;
+        }) + 1;
         return APIReturn::success($team);
     }
 
