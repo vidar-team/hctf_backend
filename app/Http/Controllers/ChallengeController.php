@@ -9,6 +9,7 @@ use App\Flag;
 use App\Level;
 use App\Log;
 use App\Services\RuleValidator;
+use App\Services\ScoreService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -187,7 +188,7 @@ class ChallengeController extends Controller
 
         try {
             $count = Log::where('challenge_id', $request->input('challengeId'))->count();
-            $dynamicScore = round($score / (1 + $count / 10), 2);  // TODO: 临时公式
+            $dynamicScore =ScoreService::calculate($count);
             Log::where("challenge_id", $request->input('challengeId'))->update([
                 "score" => $dynamicScore
             ]);
@@ -518,7 +519,7 @@ class ChallengeController extends Controller
                 "challenge_id" => $flag->challenge_id,
                 'status' => 'correct'
             ])->get();
-            $dynamicScore = round($flag->challenge->score / (1 + $challengeLogs->count() / 10), 2);  // TODO: 临时公式
+            $dynamicScore = ScoreService::calculate($challengeLogs->count());
             Log::where("challenge_id", $flag->challenge_id)->update([
                 "score" => $dynamicScore
             ]);
