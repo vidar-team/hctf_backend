@@ -140,6 +140,7 @@ class ChallengeController extends Controller
             $categories->each(function ($category) use ($validLevels, $result, $levelMaps) {
                 $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
                     $challenge->solvedCount = $challenge->logs->count();
+                    $challenge->nowScore = ScoreService::calculate($challenge->solvedCount + 1);
                     $challenge->makeHidden('logs');
                     return $validLevels->contains($challenge->level_id) && Carbon::now()->gt(Carbon::parse($challenge->release_time));
                 })->groupBy(function($item) use ($levelMaps){
