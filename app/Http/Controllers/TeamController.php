@@ -323,6 +323,7 @@ class TeamController extends Controller
     public function getRanking(Request $request)
     {
         $page = $request->input('page') ?? '1';
+        $withCount = $request->input('withCount') ?? false;
         try {
             $result = Team::where('admin', '=', '0')->orderByScore()->skip(($page - 1) * 20)->take(20)->get();
 
@@ -333,8 +334,18 @@ class TeamController extends Controller
             $result = $result->filter(function ($team) {
                 return $team->dynamic_total_score != 0;
             });
-
-            return APIReturn::success($result);
+            if (!$withCount){
+                return APIReturn::success([
+                    "ranking" => $result
+                ]);
+            }
+            else{
+                $total = Team::count();
+                return APIReturn::success([
+                    "ranking" => $result,
+                    "total" => $total
+                ]);
+            }
         } catch (\Exception $e) {
             dump($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
