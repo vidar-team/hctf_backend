@@ -474,13 +474,13 @@ class ChallengeController extends Controller
                 return APIReturn::error("duplicate_submit", __("Flag 已经提交过"), 403);
             }
 
-            if ($flag->team_id !== 0) {
+            if ($flag->team_id != 0) {
                 // Flag 是限定队伍的
-                if ($flag->team_id !== $team->team_id) {
+                if ($flag->team_id != $team->team_id) {
                     // 提交了其他队伍的 Flag
                     $team->banned = true;
                     $team->save();
-                    \Logger::info("队伍 " . $team->team_name . ' 由于提交其他队伍 (ID:' . $flag->team_id .')的 Flag 被系统自动封禁');
+                    \Logger::info("队伍 " . $team->team_name . ' 由于提交其他队伍 (ID:' . $flag->team_id .') 的 Flag 被系统自动封禁');
                     return APIReturn::error("banned", __("队伍已被封禁"), 403);
                 }
             }
