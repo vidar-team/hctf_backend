@@ -104,6 +104,9 @@ Route::group(['prefix' => 'API'], function () {
            Route::post('edit', 'BulletinController@edit');
         });
     });
+
+    Route::get('token/{token}', 'TeamController@tokenVerify');
+
 });
 
 Route::get('token/{token}', 'TeamController@tokenVerify');
