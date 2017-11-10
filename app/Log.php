@@ -13,4 +13,8 @@ class Log extends Model
     {
         return $this->belongsTo('App\Level', 'level_id', 'level_id');
     }
+
+    public function team(){
+        return $this->belongsTo('App\Team', 'team_id', 'team_id');
+    }
 }

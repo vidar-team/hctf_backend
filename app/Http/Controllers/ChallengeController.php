@@ -9,6 +9,7 @@ use App\Flag;
 use App\Level;
 use App\Log;
 use App\Services\RuleValidator;
+use App\Services\ScoreService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
@@ -139,6 +140,7 @@ class ChallengeController extends Controller
             $categories->each(function ($category) use ($validLevels, $result, $levelMaps) {
                 $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
                     $challenge->solvedCount = $challenge->logs->count();
+                    $challenge->nowScore = ScoreService::calculate($challenge->solvedCount + 1);
                     $challenge->makeHidden('logs');
                     return $validLevels->contains($challenge->level_id) && Carbon::now()->gt(Carbon::parse($challenge->release_time));
                 })->groupBy(function($item) use ($levelMaps){
@@ -187,12 +189,64 @@ class ChallengeController extends Controller
 
         try {
             $count = Log::where('challenge_id', $request->input('challengeId'))->count();
-            $dynamicScore = round($score / (1 + $count / 10), 2);  // TODO: 临时公式
+            $dynamicScore =ScoreService::calculate($count);
             Log::where("challenge_id", $request->input('challengeId'))->update([
                 "score" => $dynamicScore
             ]);
             return APIReturn::success();
         } catch (\Exception $e) {
+            return APIReturn::error("database_error", "数据库读写错误", 500);
+        }
+    }
+
+    /**
+     * 查询已经完成题目的队伍
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @author Eridanus Sora <sora@sound.moe>
+     */
+    public function getSolvedTeams(Request $request){
+        $validator = Validator::make($request->only(['challengeId']), [
+           'challengeId' => 'required'
+        ], [
+            'challengeId.required' => __('缺少 题目ID 字段')
+        ]);
+
+
+        if ($validator->fails()) {
+            return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
+        }
+
+        try{
+            $team = JWTAuth::parseToken()->toUser();
+            $team->load(['logs' => function ($query) {
+                $query->where('status', 'correct');
+            }]);
+            $challenge = Challenge::where('challenge_id',$request->input('challengeId'))->with("level")->first();
+            if ($challenge->count() == 0){
+                return APIReturn::error("challenge_not_found", __("问题不存在"), 404);
+            }
+            $logs = Log::where([
+                ["challenge_id", '=', $request->input("challengeId")],
+                ["status", "=", "correct"]
+            ])->with(['team'])->orderBy("created_at")->get();
+            $ruleValidator = new RuleValidator($team->team_id, $challenge->level->rules);
+            if (!$ruleValidator->check($team->logs)){
+                // 题目未开放
+                return APIReturn::error("challenge_not_found", __("问题不存在"), 404);
+            }
+            $result = [];
+
+            $logs->each(function($log) use(&$result){
+               array_push($result, [
+                  'teamName' => $log->team->team_name,
+                  'solvedAt' => Carbon::parse($log->created_at)->toIso8601String()
+               ]);
+            });
+            return APIReturn::success($result);
+        }
+        catch (\Exception $e){
+            dump($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -420,13 +474,13 @@ class ChallengeController extends Controller
                 return APIReturn::error("duplicate_submit", __("Flag 已经提交过"), 403);
             }
 
-            if ($flag->team_id !== 0) {
+            if ($flag->team_id != 0) {
                 // Flag 是限定队伍的
-                if ($flag->team_id !== $team->team_id) {
+                if ($flag->team_id != $team->team_id) {
                     // 提交了其他队伍的 Flag
                     $team->banned = true;
                     $team->save();
-                    \Logger::info("队伍 " . $team->team_name . ' 由于提交其他队伍的 Flag 被系统自动封禁');
+                    \Logger::info("队伍 " . $team->team_name . ' 由于提交其他队伍 (ID:' . $flag->team_id .') 的 Flag 被系统自动封禁');
                     return APIReturn::error("banned", __("队伍已被封禁"), 403);
                 }
             }
@@ -466,7 +520,11 @@ class ChallengeController extends Controller
                 "challenge_id" => $flag->challenge_id,
                 'status' => 'correct'
             ])->get();
-            $dynamicScore = round($flag->challenge->score / (1 + $challengeLogs->count() / 10), 2);  // TODO: 临时公式
+            if ($challengeLogs->count() == 0){
+                // FIRST BLOOD
+                \Logger::alert("FIRST BLOOD! Challenge: " . $flag->challenge->title . "  By. ". $team->team_name);
+            }
+            $dynamicScore = ScoreService::calculate($challengeLogs->count());
             Log::where("challenge_id", $flag->challenge_id)->update([
                 "score" => $dynamicScore
             ]);

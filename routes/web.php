@@ -14,14 +14,14 @@ Route::group(['prefix' => 'API'], function () {
     Route::get('/', 'IndexController@index');
     Route::group(['prefix' => 'User'], function () {
         //Route::group(['middleware' => 'throttle:120'], function(){
-            Route::post('login', 'TeamController@login');
-            Route::post('register', 'TeamController@register');
-            Route::get('token', 'TeamController@tokenVerify');
+        Route::post('login', 'TeamController@login');
+        Route::post('register', 'TeamController@register');
+        Route::get('token', 'TeamController@tokenVerify');
         //});
 
         //Route::group(['middleware' => 'throttle:100'], function(){
-            Route::get('select', 'TeamController@publicListTeams');
-            Route::get('ranking', 'TeamController@getRanking');
+        Route::get('select', 'TeamController@publicListTeams');
+        Route::get('ranking', 'TeamController@getRanking');
         //});
 
         Route::group(['middleware' => 'jwt.auth.mod'], function () {
@@ -72,36 +72,37 @@ Route::group(['prefix' => 'API'], function () {
 
         Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck']], function () {
             Route::get('list', 'ChallengeController@list');
+            Route::get('solvedTeams', 'ChallengeController@getSolvedTeams');
         });
 
-        Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck', 'BlockCheck']], function(){
-           Route::post('submitFlag', 'ChallengeController@submitFlag');
+        Route::group(['middleware' => ['jwt.auth.mod', 'TimeCheck', 'BlockCheck']], function () {
+            Route::post('submitFlag', 'ChallengeController@submitFlag');
         });
     });
 
-    Route::group(['prefix' => 'Flag', 'middleware' => ['jwt.auth.mod', 'AdminCheck']], function(){
-       Route::post('delete', 'FlagController@deleteFlag');
-       Route::post('edit', 'FlagController@editFlag');
+    Route::group(['prefix' => 'Flag', 'middleware' => ['jwt.auth.mod', 'AdminCheck']], function () {
+        Route::post('delete', 'FlagController@deleteFlag');
+        Route::post('edit', 'FlagController@editFlag');
     });
 
-    Route::group(['prefix' => 'SystemLog', 'middleware' => ['jwt.auth.mod', 'AdminCheck']], function(){
-       Route::get('list', 'SystemLogController@list');
+    Route::group(['prefix' => 'SystemLog', 'middleware' => ['jwt.auth.mod', 'AdminCheck']], function () {
+        Route::get('list', 'SystemLogController@list');
     });
 
-    Route::group(['prefix' => 'System'], function(){
-       Route::get('meta', 'SystemController@getMetaInfo');
-       Route::group(['middleware' => ['jwt.auth.mod', 'AdminCheck']], function(){
-          Route::post('edit', 'SystemController@editMetaInfo');
-       });
+    Route::group(['prefix' => 'System'], function () {
+        Route::get('meta', 'SystemController@getMetaInfo');
+        Route::group(['middleware' => ['jwt.auth.mod', 'AdminCheck']], function () {
+            Route::post('edit', 'SystemController@editMetaInfo');
+        });
     });
 
-    Route::group(['prefix' => 'Bulletin'], function(){
+    Route::group(['prefix' => 'Bulletin'], function () {
         Route::get('list', 'BulletinController@list');
 
-        Route::group(['middleware' =>  ['jwt.auth.mod', 'AdminCheck']], function(){
-           Route::post('delete', 'BulletinController@delete');
-           Route::post('create', 'BulletinController@create');
-           Route::post('edit', 'BulletinController@edit');
+        Route::group(['middleware' => ['jwt.auth.mod', 'AdminCheck']], function () {
+            Route::post('delete', 'BulletinController@delete');
+            Route::post('create', 'BulletinController@create');
+            Route::post('edit', 'BulletinController@edit');
         });
     });
 

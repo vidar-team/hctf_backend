@@ -27,4 +27,8 @@ class Challenge extends Model
     {
         return $this->hasMany('App\Log', 'challenge_id', 'challenge_id');
     }
+
+    public function level(){
+        return $this->belongsTo('App\Level', 'level_id', 'level_id');
+    }
 }
