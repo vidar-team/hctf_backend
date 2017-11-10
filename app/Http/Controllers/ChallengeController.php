@@ -520,6 +520,10 @@ class ChallengeController extends Controller
                 "challenge_id" => $flag->challenge_id,
                 'status' => 'correct'
             ])->get();
+            if ($challengeLogs->count() == 0){
+                // FIRST BLOOD
+                \Logger::alert("FIRST BLOOD! Challenge: " . $flag->challenge->title . "  By. ". $team->team_name);
+            }
             $dynamicScore = ScoreService::calculate($challengeLogs->count());
             Log::where("challenge_id", $flag->challenge_id)->update([
                 "score" => $dynamicScore
