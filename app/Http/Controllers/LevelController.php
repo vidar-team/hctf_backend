@@ -59,6 +59,7 @@ class LevelController extends Controller
     {
         try {
             $levelInfo = Level::where('level_id', $request->input('levelId'))->with('challenges')->first();
+            //$levelInfo->challenges->load('logs');
             return \APIReturn::success($levelInfo);
         } catch (\Exception $e) {
             dump($e);

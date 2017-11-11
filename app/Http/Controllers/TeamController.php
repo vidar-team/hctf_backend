@@ -110,9 +110,15 @@ class TeamController extends Controller
         $team->load('logs');
         $team->lastLoginTime = Carbon::now('Asia/Shanghai');
         $team->save();
-        $team->ranking = Team::orderByScore()->get()->search(function($t) use ($team){
+        $ranking = Team::orderByScore()->get()->search(function($t) use ($team){
             return $t->team_id == $team->team_id;
-        }) + 1;
+        });
+        if ($ranking === false){
+            $team->ranking = -1;
+        }
+        else{
+            $team->ranking = $ranking + 1;
+        }
         return APIReturn::success($team);
     }
 
@@ -334,9 +340,17 @@ class TeamController extends Controller
                 'email', 'admin', 'banned', 'created_at', 'updated_at', 'lastLoginTime', 'signUpTime', 'flag', 'category_id', 'level_id', 'challenge_id', 'log_id', 'score', 'token'
             ]);
 
-            $result = $result->filter(function ($team) {
-                return $team->dynamic_total_score != 0;
-            });
+//            $result = $result->filter(function ($team) {
+//                return $team->dynamic_total_score != 0;
+//            });
+//            $groupByScore = $result->groupBy(function ($l){
+//                return (string)$l->dynamic_total_score;
+//            });
+//            $groupByScore->map(function($g){
+//                return $g->sortBy('created_at');
+//            });
+//            $result = $groupByScore->flatten();
+
             if (!$withCount){
                 return APIReturn::success([
                     "ranking" => $result

@@ -223,7 +223,7 @@ class ChallengeController extends Controller
                 $query->where('status', 'correct');
             }]);
             $challenge = Challenge::where('challenge_id',$request->input('challengeId'))->with("level")->first();
-            if ($challenge->count() == 0){
+            if (!$challenge){
                 return APIReturn::error("challenge_not_found", __("问题不存在"), 404);
             }
             $logs = Log::where([
@@ -231,7 +231,7 @@ class ChallengeController extends Controller
                 ["status", "=", "correct"]
             ])->with(['team'])->orderBy("created_at")->get();
             $ruleValidator = new RuleValidator($team->team_id, $challenge->level->rules);
-            if (!$ruleValidator->check($team->logs)){
+            if (!$team->admin && !$ruleValidator->check($team->logs)){
                 // 题目未开放
                 return APIReturn::error("challenge_not_found", __("问题不存在"), 404);
             }
@@ -246,7 +246,6 @@ class ChallengeController extends Controller
             return APIReturn::success($result);
         }
         catch (\Exception $e){
-            dump($e);
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }

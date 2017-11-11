@@ -72,7 +72,7 @@ class Team extends Authenticatable
     public function scopeOrderByScore($query, $order = "desc")
     {
         return $query->leftJoin('logs', function ($join) {
-            $join->on('logs.team_id', '=', 'teams.team_id')->where('status', '=', 'correct')->orderBy('created_at', 'asc');
+            $join->on('logs.team_id', '=', 'teams.team_id')->where('status', '=', 'correct');
         })
             ->groupBy(['teams.team_id'])
             ->addSelect(['*', \DB::raw('sum(logs.score) as dynamic_total_score')])
