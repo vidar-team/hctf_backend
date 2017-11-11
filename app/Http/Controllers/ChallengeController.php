@@ -444,7 +444,7 @@ class ChallengeController extends Controller
             $flagPrefix = $config["flag_prefix"];
             $flagSuffix = $config["flag_suffix"];
 
-            if (!$flag || $flag->flag !== $request->input('flag')) {
+            if (!$flag) {
                 //  Flag 不正确
                 if (strlen($request->input('flag')) === 64 + strlen($flagPrefix) + strlen($flagSuffix)) {
                     // SHA256 长度为 64 位 / 可能是动态 Flag
@@ -461,6 +461,11 @@ class ChallengeController extends Controller
                     \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
                     return APIReturn::error("wrong_flag", __("Flag 不正确"), 403);
                 }
+            }
+
+            if ($flag->flag !== $request->input('flag')){
+                \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
+                return APIReturn::error("wrong_flag", __("Flag 不正确"), 403);
             }
 
             $level = Level::find($flag->challenge->level_id);
