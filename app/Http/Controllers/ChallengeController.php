@@ -444,7 +444,7 @@ class ChallengeController extends Controller
             $flagPrefix = $config["flag_prefix"];
             $flagSuffix = $config["flag_suffix"];
 
-            if (!$flag) {
+            if (!$flag || $flag->flag !== $request->input('flag')) {
                 //  Flag 不正确
                 if (strlen($request->input('flag')) === 64 + strlen($flagPrefix) + strlen($flagSuffix)) {
                     // SHA256 长度为 64 位 / 可能是动态 Flag
