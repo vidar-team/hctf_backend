@@ -443,6 +443,7 @@ class ChallengeController extends Controller
             $config = collect(\DB::table("config")->get())->pluck('value', 'key');
             $flagPrefix = $config["flag_prefix"];
             $flagSuffix = $config["flag_suffix"];
+            $isDynamicFlag = false;
 
             if (!$flag) {
                 //  Flag 不正确
@@ -452,6 +453,7 @@ class ChallengeController extends Controller
                     foreach ($dynamicFlagChallenges as $c) {
                         if ($c->flags->count() > 0) {
                             if ($flagPrefix . hash("sha256", $team->token . $c->flags[0]->flag) . $flagSuffix === $request->input('flag')) {
+                                $isDynamicFlag = true;
                                 $flag = $c->flags[0];
                             }
                         }
@@ -463,7 +465,7 @@ class ChallengeController extends Controller
                 }
             }
 
-            if ($flag->flag !== $request->input('flag')){
+            if (!$isDynamicFlag && $flag->flag !== $request->input('flag')){
                 \Logger::notice("队伍 " . $team->team_name . ' 提交 Flag: ' . $request->input('flag') . ' （错误）');
                 return APIReturn::error("wrong_flag", __("Flag 不正确"), 403);
             }
