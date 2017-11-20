@@ -486,7 +486,7 @@ class ChallengeController extends Controller
                     // 提交了其他队伍的 Flag
                     $team->banned = true;
                     $team->save();
-                    \Logger::info("队伍 " . $team->team_name . ' 由于提交其他队伍 (ID:' . $flag->team_id .') 的 Flag 被系统自动封禁');
+                    \Logger::info("队伍 " . $team->team_name . ' 由于提交其他队伍 (ID:' . $flag->team_id .') 的 Flag 被系统自动封禁 (Challenge: ' . $flag->challenge->title . ')');
                     return APIReturn::error("banned", __("队伍已被封禁"), 403);
                 }
             }
@@ -496,7 +496,7 @@ class ChallengeController extends Controller
                 // 该队伍提交了还未开放的问题的 flag
                 $team->banned = true;
                 $team->save();
-                \Logger::info("队伍 " . $team->team_name . ' 由于提交未开放任务的 Flag 被系统自动封禁');
+                \Logger::info("队伍 " . $team->team_name . ' 由于提交未开放任务的 Flag 被系统自动封禁 (Challenge: ' . $flag->challenge->title . ')');
                 return APIReturn::error("banned", __("队伍已被封禁"), 403);
             }
 
@@ -506,7 +506,7 @@ class ChallengeController extends Controller
                     // 做题时间太短
                     $team->banned = true;
                     $team->save();
-                    \Logger::info("队伍 " . $team->team_name . ' 由于开放问题到提交正确 Flag 的时间间隔小于阈值被系统自动封禁');
+                    \Logger::info("队伍 " . $team->team_name . ' 由于开放问题到提交正确 Flag 的时间间隔小于阈值被系统自动封禁 (Challenge: ' . $flag->challenge->title . ')');
                     return APIReturn::error("banned", __("队伍已被封禁"), 403);
                 }
             }
@@ -526,9 +526,9 @@ class ChallengeController extends Controller
                 "challenge_id" => $flag->challenge_id,
                 'status' => 'correct'
             ])->get();
-            if ($challengeLogs->count() == 0){
+            if ($challengeLogs->count() == 1){
                 // FIRST BLOOD
-                \Logger::alert("FIRST BLOOD! Challenge: " . $flag->challenge->title . "  By. ". $team->team_name);
+                \Logger::alert("FIRST BLOOD! Challenge: " . $flag->challenge->title . "  By ". $team->team_name);
             }
             $dynamicScore = ScoreService::calculate($challengeLogs->count());
             Log::where("challenge_id", $flag->challenge_id)->update([
