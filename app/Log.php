@@ -17,4 +17,8 @@ class Log extends Model
     public function team(){
         return $this->belongsTo('App\Team', 'team_id', 'team_id');
     }
+
+    public function challenge(){
+        return $this->belongsTo('App\Challenge', 'challenge_id', 'challenge_id');
+    }
 }

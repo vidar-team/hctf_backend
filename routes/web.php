@@ -12,7 +12,7 @@
 */
 Route::group(['prefix' => 'API'], function () {
     Route::get('/', 'IndexController@index');
-    Route::group(['prefix' => 'User'], function () {
+    Route::group(['prefix' => 'Team'], function () {
         //Route::group(['middleware' => 'throttle:120'], function(){
         Route::post('login', 'TeamController@login');
         Route::post('register', 'TeamController@register');
