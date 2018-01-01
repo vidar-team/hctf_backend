@@ -22,6 +22,7 @@ Route::group(['prefix' => 'API'], function () {
         //Route::group(['middleware' => 'throttle:100'], function(){
         Route::get('select', 'TeamController@publicListTeams');
         Route::get('ranking', 'TeamController@getRanking');
+        Route::get('weekRanking', 'TeamController@getWeekRanking')->middleware('ctfPatternCheck');
         //});
 
         Route::group(['middleware' => 'jwt.auth.mod'], function () {

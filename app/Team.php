@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -22,10 +23,14 @@ class Team extends Authenticatable
      * | score          | decimal(8,2)     | NO     |       | 0.00      |                |
      * | banned         | tinyint(1)       | NO     |       | 0         |                |
      * | remember_token | varchar(100)     | YES    |       | <null>    |                |
+     * | hduer          | tinyint(1)       | NO     |       | 0         |                |
+     * | student_id     | varchar(255)     | YES    | UNI   | <null>    |                |
+     * | real_name      | varchar(255)     | YES    |       | <null>    |                |
+     * | college        | varchar(255)     | YES    |       | <null>    |                |
      *
      */
     protected $fillable = [
-        'team_name', 'email', 'password', 'signUpTime', 'lastLoginTime', 'token'
+        'team_name', 'email', 'password', 'signUpTime', 'lastLoginTime', 'token', 'hduer', 'student_id', 'real_name', 'college'
     ];
 
     /**
@@ -42,6 +47,7 @@ class Team extends Authenticatable
     protected $casts = [
         'admin' => 'boolean',
         'banned' => 'boolean',
+        'hduer' => 'boolean',
         'dynamic_total_score' => 'float'
     ];
 
@@ -73,6 +79,26 @@ class Team extends Authenticatable
     {
         return $query->leftJoin('logs', function ($join) {
             $join->on('logs.team_id', '=', 'teams.team_id')->where('status', '=', 'correct');
+        })
+            ->groupBy(['teams.team_id'])
+            ->addSelect(['*', \DB::raw('sum(logs.score) as dynamic_total_score')])
+            ->orderBy('dynamic_total_score', $order);
+    }
+
+    /**
+     * 周榜分数排序(hgame专属)
+     * @param $query
+     * @param string $order
+     * @return mixed
+     * @author hammer
+     */
+    public function scopeOrderByScoreForWeek($query, $order = "desc")
+    {
+        return $query->leftJoin('logs', function ($join) {
+            $join->on('logs.team_id', '=', 'teams.team_id')->where([
+                ['status', '=', 'correct'],
+                ['logs.created_at', '>', Carbon::now()->subWeek()->toDateTimeString()],
+            ]);
         })
             ->groupBy(['teams.team_id'])
             ->addSelect(['*', \DB::raw('sum(logs.score) as dynamic_total_score')])

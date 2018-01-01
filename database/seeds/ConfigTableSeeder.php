@@ -16,19 +16,23 @@ class ConfigTableSeeder extends Seeder
         $config = [
             [
                 'key' => 'start_time',
-                'value' => '2017-11-11T08:00:00+08:00'
+                'value' => '2017-12-30T08:00:00+08:00'
             ],
             [
                 'key' => 'end_time',
-                'value' => '2017-11-13T08:00:00+08:00'
+                'value' => '2018-01-06T08:00:00+08:00'
             ],
             [
                 'key' => 'flag_prefix',
-                'value' => 'hctf{'
+                'value' => 'hgame{'
             ],
             [
                 'key' => 'flag_suffix',
                 'value' => '}'
+            ],
+            [
+                'key' => 'ctf_pattern',
+                'value' => 'hgame'
             ]
         ];
 

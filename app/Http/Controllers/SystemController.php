@@ -21,7 +21,8 @@ class SystemController extends Controller
             'startTime' => Carbon::parse($config['start_time'], 'UTC')->toIso8601String(),
             'endTime' => Carbon::parse($config['end_time'], 'UTC')->toIso8601String(),
             'flagPrefix' => $config['flag_prefix'],
-            'flagSuffix' => $config['flag_suffix']
+            'flagSuffix' => $config['flag_suffix'],
+            'ctfPattern' => $config['ctf_pattern']
         ]);
     }
 
@@ -32,11 +33,12 @@ class SystemController extends Controller
      * @author Eridanus Sora <sora@sound.moe>
      */
     public function editMetaInfo(Request $request){
-        $validator = \Validator::make($request->only(['startTime', 'endTime', 'flagPrefix', 'flagSuffix']), [
+        $validator = \Validator::make($request->only(['startTime', 'endTime', 'flagPrefix', 'flagSuffix', 'ctfPattern']), [
            'startTime' => 'required|date',
            'endTime' => 'required|date',
            'flagPrefix' => 'required',
-           'flagSuffix' => 'required'
+           'flagSuffix' => 'required',
+            'ctfPattern' => array('required', 'regex:/^(hctf|hgame)$/i')
         ]);
 
         if ($validator->fails()) {
@@ -55,6 +57,9 @@ class SystemController extends Controller
             ]);
             \DB::table("config")->where('key', '=', 'flag_suffix')->update([
                 'value' => $request->input('flagSuffix')
+            ]);
+            \DB::table("config")->where('key', '=', 'ctf_pattern')->update([
+                'value' => $request->input('ctfPattern')
             ]);
         }
         catch (\Exception $e){
