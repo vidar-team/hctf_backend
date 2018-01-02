@@ -1,7 +1,7 @@
 <?php
 /**
  * A helper file for Laravel 5, to provide autocomplete information to your IDE
- * Generated for Laravel 5.5.3 on 2017-09-22.
+ * Generated for Laravel 5.5.28 on 2017-12-29.
  *
  * @author Barry vd. Heuvel <barryvdh@gmail.com>
  * @see https://github.com/barryvdh/laravel-ide-helper
@@ -375,6 +375,18 @@ namespace Illuminate\Support\Facades {
         public static function getProvider($provider)
         {
             return \Illuminate\Foundation\Application::getProvider($provider);
+        }
+        
+        /**
+         * Get the registered service provider instances if any exist.
+         *
+         * @param \Illuminate\Support\ServiceProvider|string $provider
+         * @return array 
+         * @static 
+         */ 
+        public static function getProviders($provider)
+        {
+            return \Illuminate\Foundation\Application::getProviders($provider);
         }
         
         /**
@@ -1873,7 +1885,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Get the session store used by the guard.
          *
-         * @return \Illuminate\Contracts\Session\Session. 
+         * @return \Illuminate\Contracts\Session\Session 
          * @static 
          */ 
         public static function getSession()
@@ -2205,118 +2217,6 @@ namespace Illuminate\Support\Facades {
         public static function compileEchoDefaults($value)
         {
             return \Illuminate\View\Compilers\BladeCompiler::compileEchoDefaults($value);
-        }
-         
-    }
-
-    class Broadcast {
-        
-        /**
-         * Register the routes for handling broadcast authentication and sockets.
-         *
-         * @param array|null $attributes
-         * @return void 
-         * @static 
-         */ 
-        public static function routes($attributes = null)
-        {
-            \Illuminate\Broadcasting\BroadcastManager::routes($attributes);
-        }
-        
-        /**
-         * Get the socket ID for the given request.
-         *
-         * @param \Illuminate\Http\Request|null $request
-         * @return string|null 
-         * @static 
-         */ 
-        public static function socket($request = null)
-        {
-            return \Illuminate\Broadcasting\BroadcastManager::socket($request);
-        }
-        
-        /**
-         * Begin broadcasting an event.
-         *
-         * @param mixed|null $event
-         * @return \Illuminate\Broadcasting\PendingBroadcast|void 
-         * @static 
-         */ 
-        public static function event($event = null)
-        {
-            return \Illuminate\Broadcasting\BroadcastManager::event($event);
-        }
-        
-        /**
-         * Queue the given event for broadcast.
-         *
-         * @param mixed $event
-         * @return void 
-         * @static 
-         */ 
-        public static function queue($event)
-        {
-            \Illuminate\Broadcasting\BroadcastManager::queue($event);
-        }
-        
-        /**
-         * Get a driver instance.
-         *
-         * @param string $driver
-         * @return mixed 
-         * @static 
-         */ 
-        public static function connection($driver = null)
-        {
-            return \Illuminate\Broadcasting\BroadcastManager::connection($driver);
-        }
-        
-        /**
-         * Get a driver instance.
-         *
-         * @param string $name
-         * @return mixed 
-         * @static 
-         */ 
-        public static function driver($name = null)
-        {
-            return \Illuminate\Broadcasting\BroadcastManager::driver($name);
-        }
-        
-        /**
-         * Get the default driver name.
-         *
-         * @return string 
-         * @static 
-         */ 
-        public static function getDefaultDriver()
-        {
-            return \Illuminate\Broadcasting\BroadcastManager::getDefaultDriver();
-        }
-        
-        /**
-         * Set the default driver name.
-         *
-         * @param string $name
-         * @return void 
-         * @static 
-         */ 
-        public static function setDefaultDriver($name)
-        {
-            \Illuminate\Broadcasting\BroadcastManager::setDefaultDriver($name);
-        }
-        
-        /**
-         * Register a custom driver creator Closure.
-         *
-         * @param string $driver
-         * @param \Closure $callback
-         * @return $this 
-         * @static 
-         */ 
-        public static function extend($driver, $callback)
-        {
-            return \Illuminate\Broadcasting\BroadcastManager::extend($driver, $callback);
         }
          
     }
@@ -2928,18 +2828,29 @@ namespace Illuminate\Support\Facades {
          */ 
         public static function flush()
         {
-            return \Illuminate\Cache\DatabaseStore::flush();
+            return \Illuminate\Cache\FileStore::flush();
         }
         
         /**
-         * Get the underlying database connection.
+         * Get the Filesystem instance.
          *
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Filesystem\Filesystem 
          * @static 
          */ 
-        public static function getConnection()
+        public static function getFilesystem()
         {
-            return \Illuminate\Cache\DatabaseStore::getConnection();
+            return \Illuminate\Cache\FileStore::getFilesystem();
+        }
+        
+        /**
+         * Get the working directory of the cache.
+         *
+         * @return string 
+         * @static 
+         */ 
+        public static function getDirectory()
+        {
+            return \Illuminate\Cache\FileStore::getDirectory();
         }
         
         /**
@@ -2950,7 +2861,7 @@ namespace Illuminate\Support\Facades {
          */ 
         public static function getPrefix()
         {
-            return \Illuminate\Cache\DatabaseStore::getPrefix();
+            return \Illuminate\Cache\FileStore::getPrefix();
         }
          
     }
@@ -3217,7 +3128,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Get the cookies which have been queued for the next request.
          *
-         * @return array 
+         * @return \Symfony\Component\HttpFoundation\Cookie[] 
          * @static 
          */ 
         public static function getQueuedCookies()
@@ -4747,7 +4658,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param string $directory
          * @param bool $hidden
-         * @return array 
+         * @return \Symfony\Component\Finder\SplFileInfo[] 
          * @static 
          */ 
         public static function files($directory, $hidden = false)
@@ -4760,7 +4671,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param string $directory
          * @param bool $hidden
-         * @return array 
+         * @return \Symfony\Component\Finder\SplFileInfo[] 
          * @static 
          */ 
         public static function allFiles($directory, $hidden = false)
@@ -5215,7 +5126,7 @@ namespace Illuminate\Support\Facades {
          * @param string $key
          * @param array $replace
          * @param string $locale
-         * @return string 
+         * @return string|array|null 
          * @static 
          */ 
         public static function getFromJson($key, $replace = array(), $locale = null)
@@ -5695,445 +5606,6 @@ namespace Illuminate\Support\Facades {
         public static function setEventDispatcher($dispatcher)
         {
             \Illuminate\Log\Writer::setEventDispatcher($dispatcher);
-        }
-         
-    }
-
-    class Mail {
-        
-        /**
-         * Set the global from address and name.
-         *
-         * @param string $address
-         * @param string|null $name
-         * @return void 
-         * @static 
-         */ 
-        public static function alwaysFrom($address, $name = null)
-        {
-            \Illuminate\Mail\Mailer::alwaysFrom($address, $name);
-        }
-        
-        /**
-         * Set the global reply-to address and name.
-         *
-         * @param string $address
-         * @param string|null $name
-         * @return void 
-         * @static 
-         */ 
-        public static function alwaysReplyTo($address, $name = null)
-        {
-            \Illuminate\Mail\Mailer::alwaysReplyTo($address, $name);
-        }
-        
-        /**
-         * Set the global to address and name.
-         *
-         * @param string $address
-         * @param string|null $name
-         * @return void 
-         * @static 
-         */ 
-        public static function alwaysTo($address, $name = null)
-        {
-            \Illuminate\Mail\Mailer::alwaysTo($address, $name);
-        }
-        
-        /**
-         * Begin the process of mailing a mailable class instance.
-         *
-         * @param mixed $users
-         * @return \Illuminate\Mail\PendingMail 
-         * @static 
-         */ 
-        public static function to($users)
-        {
-            return \Illuminate\Mail\Mailer::to($users);
-        }
-        
-        /**
-         * Begin the process of mailing a mailable class instance.
-         *
-         * @param mixed $users
-         * @return \Illuminate\Mail\PendingMail 
-         * @static 
-         */ 
-        public static function bcc($users)
-        {
-            return \Illuminate\Mail\Mailer::bcc($users);
-        }
-        
-        /**
-         * Send a new message when only a raw text part.
-         *
-         * @param string $text
-         * @param mixed $callback
-         * @return void 
-         * @static 
-         */ 
-        public static function raw($text, $callback)
-        {
-            \Illuminate\Mail\Mailer::raw($text, $callback);
-        }
-        
-        /**
-         * Send a new message when only a plain part.
-         *
-         * @param string $view
-         * @param array $data
-         * @param mixed $callback
-         * @return void 
-         * @static 
-         */ 
-        public static function plain($view, $data, $callback)
-        {
-            \Illuminate\Mail\Mailer::plain($view, $data, $callback);
-        }
-        
-        /**
-         * Render the given message as a view.
-         *
-         * @param string|array $view
-         * @param array $data
-         * @return \Illuminate\View\View 
-         * @static 
-         */ 
-        public static function render($view, $data = array())
-        {
-            return \Illuminate\Mail\Mailer::render($view, $data);
-        }
-        
-        /**
-         * Send a new message using a view.
-         *
-         * @param string|array|\Illuminate\Mail\MailableContract $view
-         * @param array $data
-         * @param \Closure|string $callback
-         * @return void 
-         * @static 
-         */ 
-        public static function send($view, $data = array(), $callback = null)
-        {
-            \Illuminate\Mail\Mailer::send($view, $data, $callback);
-        }
-        
-        /**
-         * Queue a new e-mail message for sending.
-         *
-         * @param string|array|\Illuminate\Mail\MailableContract $view
-         * @param string|null $queue
-         * @return mixed 
-         * @static 
-         */ 
-        public static function queue($view, $queue = null)
-        {
-            return \Illuminate\Mail\Mailer::queue($view, $queue);
-        }
-        
-        /**
-         * Queue a new e-mail message for sending on the given queue.
-         *
-         * @param string $queue
-         * @param string|array $view
-         * @return mixed 
-         * @static 
-         */ 
-        public static function onQueue($queue, $view)
-        {
-            return \Illuminate\Mail\Mailer::onQueue($queue, $view);
-        }
-        
-        /**
-         * Queue a new e-mail message for sending on the given queue.
-         * 
-         * This method didn't match rest of framework's "onQueue" phrasing. Added "onQueue".
-         *
-         * @param string $queue
-         * @param string|array $view
-         * @return mixed 
-         * @static 
-         */ 
-        public static function queueOn($queue, $view)
-        {
-            return \Illuminate\Mail\Mailer::queueOn($queue, $view);
-        }
-        
-        /**
-         * Queue a new e-mail message for sending after (n) seconds.
-         *
-         * @param \DateTimeInterface|\DateInterval|int $delay
-         * @param string|array|\Illuminate\Mail\MailableContract $view
-         * @param string|null $queue
-         * @return mixed 
-         * @static 
-         */ 
-        public static function later($delay, $view, $queue = null)
-        {
-            return \Illuminate\Mail\Mailer::later($delay, $view, $queue);
-        }
-        
-        /**
-         * Queue a new e-mail message for sending after (n) seconds on the given queue.
-         *
-         * @param string $queue
-         * @param \DateTimeInterface|\DateInterval|int $delay
-         * @param string|array $view
-         * @return mixed 
-         * @static 
-         */ 
-        public static function laterOn($queue, $delay, $view)
-        {
-            return \Illuminate\Mail\Mailer::laterOn($queue, $delay, $view);
-        }
-        
-        /**
-         * Get the view factory instance.
-         *
-         * @return \Illuminate\Contracts\View\Factory 
-         * @static 
-         */ 
-        public static function getViewFactory()
-        {
-            return \Illuminate\Mail\Mailer::getViewFactory();
-        }
-        
-        /**
-         * Get the Swift Mailer instance.
-         *
-         * @return \Swift_Mailer 
-         * @static 
-         */ 
-        public static function getSwiftMailer()
-        {
-            return \Illuminate\Mail\Mailer::getSwiftMailer();
-        }
-        
-        /**
-         * Get the array of failed recipients.
-         *
-         * @return array 
-         * @static 
-         */ 
-        public static function failures()
-        {
-            return \Illuminate\Mail\Mailer::failures();
-        }
-        
-        /**
-         * Set the Swift Mailer instance.
-         *
-         * @param \Swift_Mailer $swift
-         * @return void 
-         * @static 
-         */ 
-        public static function setSwiftMailer($swift)
-        {
-            \Illuminate\Mail\Mailer::setSwiftMailer($swift);
-        }
-        
-        /**
-         * Set the queue manager instance.
-         *
-         * @param \Illuminate\Contracts\Queue\Factory $queue
-         * @return $this 
-         * @static 
-         */ 
-        public static function setQueue($queue)
-        {
-            return \Illuminate\Mail\Mailer::setQueue($queue);
-        }
-        
-        /**
-         * Register a custom macro.
-         *
-         * @param string $name
-         * @param object|callable $macro
-         * @return void 
-         * @static 
-         */ 
-        public static function macro($name, $macro)
-        {
-            \Illuminate\Mail\Mailer::macro($name, $macro);
-        }
-        
-        /**
-         * Mix another object into the class.
-         *
-         * @param object $mixin
-         * @return void 
-         * @static 
-         */ 
-        public static function mixin($mixin)
-        {
-            \Illuminate\Mail\Mailer::mixin($mixin);
-        }
-        
-        /**
-         * Checks if macro is registered.
-         *
-         * @param string $name
-         * @return bool 
-         * @static 
-         */ 
-        public static function hasMacro($name)
-        {
-            return \Illuminate\Mail\Mailer::hasMacro($name);
-        }
-         
-    }
-
-    class Notification {
-        
-        /**
-         * Send the given notification to the given notifiable entities.
-         *
-         * @param \Illuminate\Support\Collection|array|mixed $notifiables
-         * @param mixed $notification
-         * @return void 
-         * @static 
-         */ 
-        public static function send($notifiables, $notification)
-        {
-            \Illuminate\Notifications\ChannelManager::send($notifiables, $notification);
-        }
-        
-        /**
-         * Send the given notification immediately.
-         *
-         * @param \Illuminate\Support\Collection|array|mixed $notifiables
-         * @param mixed $notification
-         * @param array|null $channels
-         * @return void 
-         * @static 
-         */ 
-        public static function sendNow($notifiables, $notification, $channels = null)
-        {
-            \Illuminate\Notifications\ChannelManager::sendNow($notifiables, $notification, $channels);
-        }
-        
-        /**
-         * Get a channel instance.
-         *
-         * @param string|null $name
-         * @return mixed 
-         * @static 
-         */ 
-        public static function channel($name = null)
-        {
-            return \Illuminate\Notifications\ChannelManager::channel($name);
-        }
-        
-        /**
-         * Get the default channel driver name.
-         *
-         * @return string 
-         * @static 
-         */ 
-        public static function getDefaultDriver()
-        {
-            return \Illuminate\Notifications\ChannelManager::getDefaultDriver();
-        }
-        
-        /**
-         * Get the default channel driver name.
-         *
-         * @return string 
-         * @static 
-         */ 
-        public static function deliversVia()
-        {
-            return \Illuminate\Notifications\ChannelManager::deliversVia();
-        }
-        
-        /**
-         * Set the default channel driver name.
-         *
-         * @param string $channel
-         * @return void 
-         * @static 
-         */ 
-        public static function deliverVia($channel)
-        {
-            \Illuminate\Notifications\ChannelManager::deliverVia($channel);
-        }
-        
-        /**
-         * Get a driver instance.
-         *
-         * @param string $driver
-         * @return mixed 
-         * @static 
-         */ 
-        public static function driver($driver = null)
-        {
-            //Method inherited from \Illuminate\Support\Manager            
-            return \Illuminate\Notifications\ChannelManager::driver($driver);
-        }
-        
-        /**
-         * Register a custom driver creator Closure.
-         *
-         * @param string $driver
-         * @param \Closure $callback
-         * @return $this 
-         * @static 
-         */ 
-        public static function extend($driver, $callback)
-        {
-            //Method inherited from \Illuminate\Support\Manager            
-            return \Illuminate\Notifications\ChannelManager::extend($driver, $callback);
-        }
-        
-        /**
-         * Get all of the created "drivers".
-         *
-         * @return array 
-         * @static 
-         */ 
-        public static function getDrivers()
-        {
-            //Method inherited from \Illuminate\Support\Manager            
-            return \Illuminate\Notifications\ChannelManager::getDrivers();
-        }
-         
-    }
-
-    class Password {
-        
-        /**
-         * Attempt to get the broker from the local cache.
-         *
-         * @param string $name
-         * @return \Illuminate\Contracts\Auth\PasswordBroker 
-         * @static 
-         */ 
-        public static function broker($name = null)
-        {
-            return \Illuminate\Auth\Passwords\PasswordBrokerManager::broker($name);
-        }
-        
-        /**
-         * Get the default password broker name.
-         *
-         * @return string 
-         * @static 
-         */ 
-        public static function getDefaultDriver()
-        {
-            return \Illuminate\Auth\Passwords\PasswordBrokerManager::getDefaultDriver();
-        }
-        
-        /**
-         * Set the default password broker name.
-         *
-         * @param string $name
-         * @return void 
-         * @static 
-         */ 
-        public static function setDefaultDriver($name)
-        {
-            \Illuminate\Auth\Passwords\PasswordBrokerManager::setDefaultDriver($name);
         }
          
     }
@@ -6641,6 +6113,43 @@ namespace Illuminate\Support\Facades {
         {
             \Illuminate\Routing\Redirector::setSession($session);
         }
+        
+        /**
+         * Register a custom macro.
+         *
+         * @param string $name
+         * @param object|callable $macro
+         * @return void 
+         * @static 
+         */ 
+        public static function macro($name, $macro)
+        {
+            \Illuminate\Routing\Redirector::macro($name, $macro);
+        }
+        
+        /**
+         * Mix another object into the class.
+         *
+         * @param object $mixin
+         * @return void 
+         * @static 
+         */ 
+        public static function mixin($mixin)
+        {
+            \Illuminate\Routing\Redirector::mixin($mixin);
+        }
+        
+        /**
+         * Checks if macro is registered.
+         *
+         * @param string $name
+         * @return bool 
+         * @static 
+         */ 
+        public static function hasMacro($name)
+        {
+            return \Illuminate\Routing\Redirector::hasMacro($name);
+        }
          
     }
 
@@ -6736,7 +6245,7 @@ namespace Illuminate\Support\Facades {
         }
         
         /**
-         * Get the current encoded path info for the request.
+         * Get the current decoded path info for the request.
          *
          * @return string 
          * @static 
@@ -6876,24 +6385,24 @@ namespace Illuminate\Support\Facades {
          * Merge new input into the current request's input array.
          *
          * @param array $input
-         * @return void 
+         * @return \Illuminate\Http\Request 
          * @static 
          */ 
         public static function merge($input)
         {
-            \Illuminate\Http\Request::merge($input);
+            return \Illuminate\Http\Request::merge($input);
         }
         
         /**
          * Replace the input for the current request.
          *
          * @param array $input
-         * @return void 
+         * @return \Illuminate\Http\Request 
          * @static 
          */ 
         public static function replace($input)
         {
-            \Illuminate\Http\Request::replace($input);
+            return \Illuminate\Http\Request::replace($input);
         }
         
         /**
@@ -7362,8 +6871,8 @@ namespace Illuminate\Support\Facades {
          * 
          * Order of precedence: PATH (routing placeholders or custom attributes), GET, BODY
          *
-         * @param string $key the key
-         * @param mixed $default the default value if the parameter key does not exist
+         * @param string $key The key
+         * @param mixed $default The default value if the parameter key does not exist
          * @return mixed 
          * @static 
          */ 
@@ -7996,6 +7505,24 @@ namespace Illuminate\Support\Facades {
         {
             //Method inherited from \Symfony\Component\HttpFoundation\Request            
             return \Illuminate\Http\Request::isMethodCacheable();
+        }
+        
+        /**
+         * Returns the protocol version.
+         * 
+         * If the application is behind a proxy, the protocol version used in the
+         * requests between the client and the proxy and between the proxy and the
+         * server might be different. This returns the former (from the "Via" header)
+         * if the proxy is trusted (see "setTrustedProxies()"), otherwise it returns
+         * the latter (from the "SERVER_PROTOCOL" server parameter).
+         *
+         * @return string 
+         * @static 
+         */ 
+        public static function getProtocolVersion()
+        {
+            //Method inherited from \Symfony\Component\HttpFoundation\Request            
+            return \Illuminate\Http\Request::getProtocolVersion();
         }
         
         /**
@@ -8896,6 +8423,18 @@ namespace Illuminate\Support\Facades {
         }
         
         /**
+         * Register a new Fallback route with the router.
+         *
+         * @param \Closure|array|string|null $action
+         * @return \Illuminate\Routing\Route 
+         * @static 
+         */ 
+        public static function fallback($action)
+        {
+            return \Illuminate\Routing\Router::fallback($action);
+        }
+        
+        /**
          * Create a redirect from one URI to another.
          *
          * @param string $uri
@@ -8964,7 +8503,19 @@ namespace Illuminate\Support\Facades {
         }
         
         /**
-         * Route an api resource to a controller.
+         * Register an array of API resource controllers.
+         *
+         * @param array $resources
+         * @return void 
+         * @static 
+         */ 
+        public static function apiResources($resources)
+        {
+            \Illuminate\Routing\Router::apiResources($resources);
+        }
+        
+        /**
+         * Route an API resource to a controller.
          *
          * @param string $name
          * @param string $controller
@@ -9014,6 +8565,18 @@ namespace Illuminate\Support\Facades {
         }
         
         /**
+         * Return the response returned by the given route.
+         *
+         * @param string $name
+         * @return mixed 
+         * @static 
+         */ 
+        public static function respondWithRoute($name)
+        {
+            return \Illuminate\Routing\Router::respondWithRoute($name);
+        }
+        
+        /**
          * Dispatch the request to the application.
          *
          * @param \Illuminate\Http\Request $request
@@ -9060,6 +8623,19 @@ namespace Illuminate\Support\Facades {
         public static function prepareResponse($request, $response)
         {
             return \Illuminate\Routing\Router::prepareResponse($request, $response);
+        }
+        
+        /**
+         * Static version of prepareResponse.
+         *
+         * @param \Symfony\Component\HttpFoundation\Request $request
+         * @param mixed $response
+         * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse 
+         * @static 
+         */ 
+        public static function toResponse($request, $response)
+        {
+            return \Illuminate\Routing\Router::toResponse($request, $response);
         }
         
         /**
@@ -10520,6 +10096,35 @@ namespace Illuminate\Support\Facades {
         }
         
         /**
+         * Create a streamed response for a given file.
+         *
+         * @param string $path
+         * @param string|null $name
+         * @param array|null $headers
+         * @param string|null $disposition
+         * @return \Symfony\Component\HttpFoundation\StreamedResponse 
+         * @static 
+         */ 
+        public static function response($path, $name = null, $headers = array(), $disposition = 'inline')
+        {
+            return \Illuminate\Filesystem\FilesystemAdapter::response($path, $name, $headers, $disposition);
+        }
+        
+        /**
+         * Create a streamed download response for a given file.
+         *
+         * @param string $path
+         * @param string|null $name
+         * @param array|null $headers
+         * @return \Symfony\Component\HttpFoundation\StreamedResponse 
+         * @static 
+         */ 
+        public static function download($path, $name = null, $headers = array())
+        {
+            return \Illuminate\Filesystem\FilesystemAdapter::download($path, $name, $headers);
+        }
+        
+        /**
          * Write the contents of a file.
          *
          * @param string $path
@@ -10716,6 +10321,36 @@ namespace Illuminate\Support\Facades {
         }
         
         /**
+         * Get a temporary URL for the file at the given path.
+         *
+         * @param \League\Flysystem\AwsS3v3\AwsS3Adapter $adapter
+         * @param string $path
+         * @param \DateTimeInterface $expiration
+         * @param array $options
+         * @return string 
+         * @static 
+         */ 
+        public static function getAwsTemporaryUrl($adapter, $path, $expiration, $options)
+        {
+            return \Illuminate\Filesystem\FilesystemAdapter::getAwsTemporaryUrl($adapter, $path, $expiration, $options);
+        }
+        
+        /**
+         * Get a temporary URL for the file at the given path.
+         *
+         * @param \League\Flysystem\Rackspace\RackspaceAdapter $adapter
+         * @param string $path
+         * @param \DateTimeInterface $expiration
+         * @param array $options
+         * @return string 
+         * @static 
+         */ 
+        public static function getRackspaceTemporaryUrl($adapter, $path, $expiration, $options)
+        {
+            return \Illuminate\Filesystem\FilesystemAdapter::getRackspaceTemporaryUrl($adapter, $path, $expiration, $options);
+        }
+        
+        /**
          * Get an array of all files in a directory.
          *
          * @param string|null $directory
@@ -10787,6 +10422,17 @@ namespace Illuminate\Support\Facades {
         public static function deleteDirectory($directory)
         {
             return \Illuminate\Filesystem\FilesystemAdapter::deleteDirectory($directory);
+        }
+        
+        /**
+         * Flush the Flysystem cache.
+         *
+         * @return void 
+         * @static 
+         */ 
+        public static function flushCache()
+        {
+            \Illuminate\Filesystem\FilesystemAdapter::flushCache();
         }
         
         /**
@@ -12495,8 +12141,6 @@ namespace  {
     class Auth extends \Illuminate\Support\Facades\Auth {}
 
     class Blade extends \Illuminate\Support\Facades\Blade {}
-
-    class Broadcast extends \Illuminate\Support\Facades\Broadcast {}
 
     class Bus extends \Illuminate\Support\Facades\Bus {}
 
@@ -14485,13 +14129,13 @@ namespace  {
             /**
              * Clone the query without the given properties.
              *
-             * @param array $except
+             * @param array $properties
              * @return static 
              * @static 
              */ 
-            public static function cloneWithout($except)
+            public static function cloneWithout($properties)
             {    
-                return \Illuminate\Database\Query\Builder::cloneWithout($except);
+                return \Illuminate\Database\Query\Builder::cloneWithout($properties);
             }
          
             /**
@@ -14569,12 +14213,6 @@ namespace  {
     class Lang extends \Illuminate\Support\Facades\Lang {}
 
     class Log extends \Illuminate\Support\Facades\Log {}
-
-    class Mail extends \Illuminate\Support\Facades\Mail {}
-
-    class Notification extends \Illuminate\Support\Facades\Notification {}
-
-    class Password extends \Illuminate\Support\Facades\Password {}
 
     class Queue extends \Illuminate\Support\Facades\Queue {}
 

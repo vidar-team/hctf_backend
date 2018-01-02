@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\AdminCheck;
 use App\Http\Middleware\BlockCheck;
+use App\Http\Middleware\ctfPatternCheck;
 use App\Http\Middleware\I18n;
 use App\Http\Middleware\ThrottleRequests;
 use App\Http\Middleware\TimeCheck;
@@ -68,6 +69,7 @@ class Kernel extends HttpKernel
         'jwt.auth.mod' => \App\Http\Middleware\VerifyJWTToken::class,
         'AdminCheck' => AdminCheck::class, // 管理员权限检查
         'BlockCheck' => BlockCheck::class,
-        'TimeCheck' => TimeCheck::class
+        'TimeCheck' => TimeCheck::class,
+        'ctfPatternCheck' => ctfPatternCheck::class // ctf模式检查
     ];
 }

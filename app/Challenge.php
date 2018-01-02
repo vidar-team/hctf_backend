@@ -11,7 +11,8 @@ class Challenge extends Model
     protected $primaryKey = "challenge_id";
     protected $casts = [
         'config' => 'array',
-        'is_dynamic_flag' => 'boolean'
+        'is_dynamic_flag' => 'boolean',
+        'score' => 'float'
     ];
 
     public function getReleaseTimeAttribute($value){

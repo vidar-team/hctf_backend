@@ -6,6 +6,7 @@ use APIReturn;
 use App\Category;
 use App\Challenge;
 use App\Flag;
+use App\Http\Middleware\ctfPatternCheck;
 use App\Level;
 use App\Log;
 use App\Services\RuleValidator;
@@ -15,10 +16,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use JWTAuth;
+use Symfony\Component\VarDumper\Caster\CutArrayStub;
 use Validator;
 
 class ChallengeController extends Controller
 {
+    private $ctfPattern;
+
+    public function __construct()
+    {
+        $this->ctfPattern = (\DB::table("config")->get())->pluck('value', 'key')["ctf_pattern"];
+
+    }
+
     /**
      * 创建新的 Challenge
      *
@@ -140,7 +150,7 @@ class ChallengeController extends Controller
             $categories->each(function ($category) use ($validLevels, $result, $levelMaps) {
                 $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
                     $challenge->solvedCount = $challenge->logs->count();
-                    $challenge->nowScore = ScoreService::calculate($challenge->solvedCount + 1);
+                    $challenge->nowScore = ($this->ctfPattern === 'hctf')?ScoreService::calculate($challenge->solvedCount + 1, $this->ctfPattern) : ScoreService::calculate(0, $this->ctfPattern, $challenge->score);
                     $challenge->makeHidden('logs');
                     return $validLevels->contains($challenge->level_id) && Carbon::now()->gt(Carbon::parse($challenge->release_time));
                 })->groupBy(function($item) use ($levelMaps){
@@ -521,6 +531,16 @@ class ChallengeController extends Controller
             $successLog->flag = $request->input('flag');
             $successLog->score = 0.0;
             $successLog->save();
+
+            // 获取题目基准分
+            $challenge = Challenge::where('challenge_id', $flag->challenge_id)->first();
+            $baseScore = $challenge->score;
+            if ($this->ctfPattern === 'hgame') {
+                $releaseTime = Carbon::parse($challenge->release_time)->timezone('Asia/Shanghai');
+                if (Carbon::now()->diffInWeeks($releaseTime)) {
+                    $baseScore = 0;
+                }
+            }
             // 动态分数应用
             $challengeLogs = Log::where([
                 "challenge_id" => $flag->challenge_id,
@@ -530,10 +550,21 @@ class ChallengeController extends Controller
                 // FIRST BLOOD
                 \Logger::alert("FIRST BLOOD! Challenge: " . $flag->challenge->title . "  By ". $team->team_name);
             }
-            $dynamicScore = ScoreService::calculate($challengeLogs->count());
-            Log::where("challenge_id", $flag->challenge_id)->update([
-                "score" => $dynamicScore
-            ]);
+            $dynamicScore = ScoreService::calculate($challengeLogs->count(), $this->ctfPattern, $baseScore);
+            // 这里怕出事情所以就再弄一套hgame分数更新
+            if ($this->ctfPattern === 'hgame') {
+                Log::where([
+                    ["challenge_id", $flag->challenge_id],
+                    ["team_id", $team->team_id],
+                ])->update([
+                    "score" => $dynamicScore
+                ]);
+            }
+            else {
+                Log::where("challenge_id", $flag->challenge_id)->update([
+                    "score" => $dynamicScore
+                ]);
+            }
             \Logger::info("队伍 " . $team->team_name . ' 提交问题 ' . $flag->challenge->title . ' Flag: ' . $request->input('flag') . ' （正确）');
             return APIReturn::success([
                 "score" => $dynamicScore
