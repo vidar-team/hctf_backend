@@ -95,9 +95,13 @@ class Team extends Authenticatable
     public function scopeOrderByScoreForWeek($query, $order = "desc")
     {
         return $query->leftJoin('logs', function ($join) {
+            $startTime = collect(\DB::table("config")->get())->pluck('value', 'key')["start_time"];
+            $startTime = Carbon::parse($startTime);
+            $weeks = Carbon::now()->diffInWeeks($startTime) + 1;
+            $afterTheWeek = $startTime->addWeeks($weeks)->toDateTimeString();
             $join->on('logs.team_id', '=', 'teams.team_id')->where([
                 ['status', '=', 'correct'],
-                ['logs.created_at', '>', Carbon::now()->subWeek()->toDateTimeString()],
+                ['logs.created_at', '<', $afterTheWeek],
             ]);
         })
             ->groupBy(['teams.team_id'])
