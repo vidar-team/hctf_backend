@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\Request;
 use App\Team;
+use Auth;
 use Illuminate\Support\Facades\DB;
 use Mockery\Exception;
 use APIReturn;
@@ -45,13 +47,22 @@ class TeamController extends Controller
         }
 
         $access_token = null;
-
         try {
-            if (!$access_token = JWTAuth::attempt($credentials)) {
+            if (Auth::once($credentials)) {
+                $team = Auth::getUser();
+            } else {
                 return APIReturn::error("invalid_email_or_password", __("Email 与密码不匹配"), 401);
             }
-        } catch (JWTAuthException $err) {
-            return APIReturn::error("failed_to_create_token", __("无法创建认证Token"), 500);
+
+            if (!$team) {
+                return APIReturn::error("invalid_email_or_password", __("Email 与密码不匹配"), 401);
+            } else {
+                $access_token = JWTAuth::fromUser($team, [
+                    'is_admin' => $team->admin
+                ]);
+            }
+        } catch (\Exception  $e) {
+            return APIReturn::error("database_error", "数据库读写错误", 500);
         }
 
         return APIReturn::success(['access_token' => $access_token]);
@@ -94,7 +105,7 @@ class TeamController extends Controller
                 'lastLoginTime' => Carbon::now('Asia/Shanghai'),
                 'token' => str_random("32"),
             ]);
-            
+
         } catch (\Exception $err) {
             return APIReturn::error("email_or_team_already_exist", __("队伍或Email已经存在"), 500);
         }
@@ -110,13 +121,12 @@ class TeamController extends Controller
         $team->load('logs');
         $team->lastLoginTime = Carbon::now('Asia/Shanghai');
         $team->save();
-        $ranking = Team::orderByScore()->get()->search(function($t) use ($team){
+        $ranking = Team::orderByScore()->get()->search(function ($t) use ($team) {
             return $t->team_id == $team->team_id;
         });
-        if ($ranking === false){
+        if ($ranking === false) {
             $team->ranking = -1;
-        }
-        else{
+        } else {
             $team->ranking = $ranking + 1;
         }
         return APIReturn::success($team);
@@ -193,12 +203,11 @@ class TeamController extends Controller
             return APIReturn::error('invalid_parameters', $validator->errors()->all(), 400);
         }
 
-        try{
+        try {
             $keyword = $request->input('keyword');
             $teams = Team::where('team_name', 'like', "%$keyword%")->get();
             return APIReturn::success($teams);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
         }
     }
@@ -351,12 +360,11 @@ class TeamController extends Controller
 //            });
 //            $result = $groupByScore->flatten();
 
-            if (!$withCount){
+            if (!$withCount) {
                 return APIReturn::success([
                     "ranking" => $result
                 ]);
-            }
-            else{
+            } else {
                 $total = Team::count();
                 return APIReturn::success([
                     "ranking" => $result,
@@ -376,7 +384,7 @@ class TeamController extends Controller
             $team = Team::where('token', $token)->firstOrFail();
             return APIReturn::success($team->team_name);
         } catch (\Exception $e) {
-            return APIReturn::error("", "",404);
+            return APIReturn::error("", "", 404);
         }
     }
 }
