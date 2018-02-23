@@ -188,11 +188,16 @@ class ChallengeController extends Controller
         $score = $request->input('score');
 
         try {
+            // 重设所有队伍得分
             $count = Log::where('challenge_id', $request->input('challengeId'))->count();
-            $dynamicScore =ScoreService::calculate($count);
+            $dynamicScore = ScoreService::calculate($count);
             Log::where("challenge_id", $request->input('challengeId'))->update([
                 "score" => $dynamicScore
             ]);
+            // 更新题目信息
+            $challenge = Challenge::find($request->input('challengeId'));
+            $challenge->score = $request->input('score');
+            $challenge->save();
             return APIReturn::success();
         } catch (\Exception $e) {
             return APIReturn::error("database_error", "数据库读写错误", 500);
