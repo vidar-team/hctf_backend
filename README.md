@@ -2,7 +2,7 @@
 
 HCTF 2017 平台后端。
 
-本仓库是平台的后端，需要和[前端](https://github.com/Last-Order/hctf_backend)配合使用，关于前端的部署请参见前端仓库。在使用时，请使用`Nginx`或`Apache`等服务器将根目录指向前端(`/dist`目录)，`/API`目录指向后端(`/public`目录)。
+本仓库是平台的后端，需要和[前端](https://github.com/Last-Order/hctf_frontend)配合使用，关于前端的部署请参见前端仓库。在使用时，请使用`Nginx`或`Apache`等服务器将根目录指向前端(`/dist`目录)，`/API`目录指向后端(`/public`目录)。
 
 一份示例的`Apache Vhost`（生产环境）配置如下：
 ```
