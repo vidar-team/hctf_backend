@@ -149,7 +149,7 @@ class ChallengeController extends Controller
             });
 
             $placeholders = [
-                'teamId' => hash('sha256', ((string)$team->team_id) . '7syxU3JS2JjheG^A')
+                'teamId' => hash('sha256', ((string)$team->team_id) . env('APP_SALT'))
             ];
         }
         catch (\Exception $e){
