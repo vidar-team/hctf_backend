@@ -140,7 +140,7 @@ class ChallengeController extends Controller
             $categories->each(function ($category) use ($validLevels, $result, $levelMaps) {
                 $result[$category->category_name] = $category->challenges->filter(function ($challenge) use ($validLevels) {
                     $challenge->solvedCount = $challenge->logs->count();
-                    $challenge->nowScore = ScoreService::calculate($challenge->solvedCount + 1);
+                    $challenge->nowScore = ScoreService::calculate($challenge->solvedCount + 1, $challenge->score);
                     $challenge->makeHidden('logs');
                     return $validLevels->contains($challenge->level_id) && Carbon::now()->gt(Carbon::parse($challenge->release_time));
                 })->groupBy(function($item) use ($levelMaps){
@@ -190,13 +190,13 @@ class ChallengeController extends Controller
         try {
             // 重设所有队伍得分
             $count = Log::where('challenge_id', $request->input('challengeId'))->count();
-            $dynamicScore = ScoreService::calculate($count);
+            $dynamicScore = ScoreService::calculate($count, $score);
             Log::where("challenge_id", $request->input('challengeId'))->update([
                 "score" => $dynamicScore
             ]);
             // 更新题目信息
             $challenge = Challenge::find($request->input('challengeId'));
-            $challenge->score = $request->input('score');
+            $challenge->score = $score ;
             $challenge->save();
             return APIReturn::success();
         } catch (\Exception $e) {
@@ -535,7 +535,7 @@ class ChallengeController extends Controller
                 // FIRST BLOOD
                 \Logger::alert("FIRST BLOOD! Challenge: " . $flag->challenge->title . "  By ". $team->team_name);
             }
-            $dynamicScore = ScoreService::calculate($challengeLogs->count());
+            $dynamicScore = ScoreService::calculate($challengeLogs->count(), $flag->challenge->score);
             Log::where("challenge_id", $flag->challenge_id)->update([
                 "score" => $dynamicScore
             ]);
