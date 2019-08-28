@@ -290,18 +290,20 @@ class ChallengeController extends Controller
      */
     public function editChallenge(Request $request)
     {
-        $validator = Validator::make($request->only(['challengeId', 'title', 'description', 'releaseTime']), [
+        $validator = Validator::make($request->only(['challengeId', 'title', 'description', 'releaseTime', 'url']), [
             'challengeId' => 'required|integer',
             'title' => 'required',
             'description' => 'required',
-            'releaseTime' => 'required|date'
+            'releaseTime' => 'required|date',
+            'url' => 'required'
         ], [
             'challengeId.required' => '缺少 Challenge ID 字段',
             'challengeId.integer' => 'Challenge ID 字段不合法',
             'title.required' => '缺少标题字段',
             'description' => '缺少描述字段',
             'releaseTime.required' => '缺少开放时间字段',
-            'releaseTime.date' => '开放时间字段不合法'
+            'releaseTime.date' => '开放时间字段不合法',
+            'url.required' => '缺少 URL 字段'
         ]);
 
         if ($validator->fails()) {
@@ -317,6 +319,7 @@ class ChallengeController extends Controller
             $challenge->title = $request->input('title');
             $challenge->description = $request->input('description');
             $challenge->release_time =  Carbon::parse($request->input('releaseTime'))->setTimezone('UTC')->toDateTimeString();
+            $challenge->url = $request->input('url');
             $challenge->save();
 
             return APIReturn::success($challenge);
